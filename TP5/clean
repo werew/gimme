@@ -1,0 +1,6 @@
+/bin/rm -rf Chat orb.db
+/bin/rm -f *.class *~ \#* .\#*
+
+
+
+

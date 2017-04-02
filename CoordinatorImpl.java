@@ -11,8 +11,16 @@ import Gimme.CoordinatorHelper;
 
 public class CoordinatorImpl extends CoordinatorPOA {
 
+    private Vector<Consumer> consumers;
+    private Vector<Producer> producers;
+
     public boolean loginConsumer(Consumer c){ return false; }
     public boolean loginProducer(Producer p){ return false; }
+
+    public CoordinatorImpl(int maxprod, int maxcons){
+        consumers = new Vector<Consumer>(maxcons);
+        producers = new Vector<Producer>(maxprod);
+    }
 
     public static void main(String args[]) {
 
@@ -22,26 +30,19 @@ public class CoordinatorImpl extends CoordinatorPOA {
         }
 
         try {
-            // init ORB
-            String [] argv = {"-ORBInitialHost", args[0], "-ORBInitialPort", args[1]} ; 
-            ORB orb = ORB.init(argv, null) ;
-            CoordinatorImpl helloImpl = new CoordinatorImpl() ;
 
-            // init POA
-            POA rootpoa =	POAHelper.narrow(orb.resolve_initial_references("RootPOA")) ;
-            rootpoa.the_POAManager().activate() ;
+            /* Init corba service */
+            CorbaManager cm = new CorbaManager(args[0], args[1]);
+           
+            /* Create corba object */
+            CoordinatorImpl coord = new CoordinatorImpl(10,10);
+            Coordinator href = CoordinatorHelper.narrow(cm.getRef(coord));
 
-            org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloImpl) ;
-            Coordinator href = CoordinatorHelper.narrow(ref) ;
-
-            // inscription de l'objet au service de noms
-            org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService") ;
-            NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef) ;
-            NameComponent path[] = ncRef.to_name( "Coordinator" ) ;
-            ncRef.rebind(path, href) ;
+            /* Register object to name service */
+            cm.bindName("Coordinator",href);
 
             System.out.println("Coordinator ready and waiting ...") ;
-            orb.run() ;
+            cm.runORB() ;
 
         } catch (Exception e) {
             System.err.println("ERROR: " + e) ;

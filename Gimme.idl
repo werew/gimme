@@ -1,0 +1,23 @@
+module Gimme
+{
+  interface Producer
+  {
+    long getResource(in long amount) ;
+    long queryAmount() ;
+  } ;
+
+
+  interface Consumer
+  {
+  //  oneway int stealResource(in string name, in int amount) ;
+    long start(in Producer p) ;
+  } ;
+
+
+  interface Coordinator
+  {
+    boolean loginConsumer(in Consumer c) ;
+    boolean loginProducer(in Producer p) ;
+  } ;
+
+} ;

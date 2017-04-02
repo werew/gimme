@@ -1,0 +1,3 @@
+idlj -fall Gimme.idl
+javac -classpath "Gimme:." *.java
+

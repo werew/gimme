@@ -1,0 +1,6 @@
+/bin/rm -rf Gimme orb.db
+/bin/rm -f *.class *~ \#* .\#*
+
+
+
+

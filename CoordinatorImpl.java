@@ -12,33 +12,32 @@ import org.apache.commons.cli.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
 
-    private Vector<Consumer> consumers;
-    private Vector<Producer> producers;
+    private Consumer[] consumers;
+    private Producer[] producers;
 
     public boolean loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
-        consumers.add(c);
-        Producer[] p = new Producer[producers.size()];
-        c.start(producers.toArray(p));
+        consumers[consumers.length] = c;
+        c.start(producers);
         return false; 
     }
 
     public void resetProducers(int np){
-
+        producers = new Producer[np];
     }
-    public void resetConsumers(int nc){
 
+    public void resetConsumers(int nc){
+        consumers = new Consumer[nc];
     }
 
     public boolean loginProducer(Producer p){ 
         System.out.println("Login producer");
-        producers.add(p);
+        producers[producers.length] = p;
         return false; 
     }
 
     public CoordinatorImpl(int maxprod, int maxcons){
-        consumers = new Vector<Consumer>(maxcons);
-        producers = new Vector<Producer>(maxprod);
+        resetConsumers(maxcons); resetProducers(maxprod);
     }
 
 

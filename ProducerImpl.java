@@ -15,7 +15,9 @@ public class ProducerImpl extends ProducerPOA {
     Coordinator coordinator;
 
     public int getResource(int amount){ return 0;}
-    public int queryAmount(){return 0;}
+    public int queryAmount(){
+        System.out.println("Query!!");
+        return 0;}
 
     public static void main(String args[]){
 
@@ -45,6 +47,7 @@ public class ProducerImpl extends ProducerPOA {
             // contacter le serveur
             String reference = "corbaname::" + args[0] + ":" + args[1] + "#Coordinator" ;
             org.omg.CORBA.Object obj = orb.string_to_object(reference) ;
+            producer.coordinator.loginProducer(producer.myprod);
 
             // obtenir reference sur l'objet distant
             producer.coordinator = CoordinatorHelper.narrow(obj) ;

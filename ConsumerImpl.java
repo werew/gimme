@@ -14,12 +14,21 @@ import Gimme.ConsumerHelper;
 public class ConsumerImpl extends ConsumerPOA {
     Consumer mycons;
     Coordinator coordinator;
+    ThreadRun orbthread;
 
-    public int start(Producer p){
-        return 0;
+    public void hello(){
+        System.out.println("Hello!");
     }
 
+    public int start(Producer p){
+        p.queryAmount();
+        return 0;
+    }
+    
+
     public static void main(String args[]){
+
+        ConsumerImpl consumer = null;
 
         if (args.length != 2){
             System.out.println("Usage : java ConsumerImpl" + " <machineServeurDeNoms>" + " <No Port>") ;
@@ -36,7 +45,7 @@ public class ConsumerImpl extends ConsumerPOA {
             rootpoa.the_POAManager().activate() ;
 
             // creer l'objet qui sera appele' depuis le serveur
-            ConsumerImpl consumer = new ConsumerImpl() ;
+            consumer = new ConsumerImpl() ;
             org.omg.CORBA.Object ref = rootpoa.servant_to_reference(consumer) ;
             consumer.mycons = ConsumerHelper.narrow(ref) ; 
             if (consumer.mycons == null) {
@@ -54,21 +63,21 @@ public class ConsumerImpl extends ConsumerPOA {
                 System.out.println("Pb pour contacter le serveur") ;
                 System.exit(1) ;
             } 
-            /*
+
+            consumer.coordinator.loginConsumer(consumer.mycons);
+            orb.run();
+/*
             // lancer l'ORB dans un thread
-            client.thread = new ThreadRun(orb) ;
-            client.thread.start() ;
-            client.loop() ;
-            */
+            consumer.orbthread = new ThreadRun(orb) ;
+            consumer.orbthread.start() ;
+*/
+
+
         } catch (Exception e) {
             System.out.println("ERROR : " + e) ;
             e.printStackTrace(System.out) ;
         } finally {
-        /*
-          // shutdown
-          if (client != null)
-            client.thread.shutdown() ;
-        */
+           if (consumer != null) consumer.orbthread.shutdown() ;
         }
     }
 }

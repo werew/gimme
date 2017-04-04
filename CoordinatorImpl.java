@@ -14,8 +14,17 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private Vector<Consumer> consumers;
     private Vector<Producer> producers;
 
-    public boolean loginConsumer(Consumer c){ return false; }
-    public boolean loginProducer(Producer p){ return false; }
+    public boolean loginConsumer(Consumer c){ 
+        System.out.println("Login consumer");
+        c.hello();
+        c.start(producers.get(0));
+        return false; 
+    }
+
+    public boolean loginProducer(Producer p){ 
+        producers.add(p);
+        return false; 
+    }
 
     public CoordinatorImpl(int maxprod, int maxcons){
         consumers = new Vector<Consumer>(maxcons);

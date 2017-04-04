@@ -31,6 +31,7 @@ public class CorbaManager {
             ncRef.rebind(path, obj) ;
     }
 
+
     public void runORB(){
         orb.run();
     }

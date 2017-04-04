@@ -11,6 +11,7 @@ module Gimme
   {
   //  oneway int stealResource(in string name, in int amount) ;
     long start(in Producer p) ;
+    void hello() ; // test
   } ;
 
 

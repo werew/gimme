@@ -57,13 +57,11 @@ public class CoordinatorImpl extends CoordinatorPOA {
     }
 
 
-    private static void printUsage(Options options){
+    private static void printUsage(Options options, int exitcode){
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("java CoordinatorImpl [OPTIONS] <Name Server> <Port>", options);
+        System.exit(exitcode);
     }
-
-
-
 
     public static void main(String args[]) {
 
@@ -79,8 +77,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
         } catch (ParseException e) {
             System.out.println("\nERROR: "+e.getMessage()+"\n");
-            printUsage(options);
-            System.exit(1);
+            printUsage(options,1);
         }
 
 

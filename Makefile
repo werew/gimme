@@ -5,8 +5,9 @@ build:
 	javac -classpath "Gimme:." *.java
 
 clean:
-	/bin/rm -rf Gimme orb.db
-	/bin/rm -f *.class *~ \#* .\#*
+	rm -f org/apache/commons/cli/*.class
+	rm -rf Gimme orb.db
+	rm -f *.class *~ \#* .\#*
 
 
 

@@ -8,6 +8,7 @@ import org.omg.CosNaming.*;
 public class CorbaManager {
     ORB orb;
     POA rootPOA;
+    String refprelude;
 
     private void initORB(String host, String port){
             String [] argv = {"-ORBInitialHost", host,
@@ -22,6 +23,10 @@ public class CorbaManager {
 
     public org.omg.CORBA.Object getRef(Servant obj) throws UserException {
             return rootPOA.servant_to_reference(obj) ;
+    }
+
+    public org.omg.CORBA.Object getRef(String name) throws UserException {
+            return orb.string_to_object(refprelude + name) ;
     }
 
     public void bindName(String name, org.omg.CORBA.Object obj) throws UserException {
@@ -39,6 +44,7 @@ public class CorbaManager {
     public CorbaManager(String host, String port) throws UserException {
         initORB(host,port);
         initRootPOA();
+        refprelude = "corbaname::" + host + ":" + port + "#";
     }
 
 

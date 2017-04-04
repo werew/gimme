@@ -8,6 +8,7 @@ import Gimme.Producer;
 import Gimme.Coordinator;
 import Gimme.CoordinatorPOA;
 import Gimme.CoordinatorHelper;
+import org.apache.commons.cli.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
 
@@ -33,17 +34,61 @@ public class CoordinatorImpl extends CoordinatorPOA {
         producers = new Vector<Producer>(maxprod);
     }
 
+
+
+
+    private static Options getOptions(){
+
+        Options options = new Options();
+
+        Option consumers = new Option("c","consumers",true, 
+            "number of consumers of the game (default is 2)");
+        consumers.setArgName("nb consumers");
+        Option producers = new Option("p","producers",true, 
+            "number of producers of the game (default is 2)");
+        producers.setArgName("nb producers");
+
+        options.addOption(consumers); 
+        options.addOption(producers); 
+
+        return options;
+
+
+    }
+
+
+    private static void printUsage(Options options){
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("java CoordinatorImpl [OPTIONS] <Name Server> <Port>", options);
+    }
+
+
+
+
     public static void main(String args[]) {
 
-        if (args.length != 2) {
-            System.out.println("Usage : java CoordinatorImpl" + " <machineServeurDeNoms>" + " <No Port>") ;
-            return ;
+        String[] argz = null;
+        Options options = getOptions();
+
+        try {
+            CommandLineParser parser = new DefaultParser();
+            CommandLine cmd = parser.parse(options, args);
+            argz = cmd.getArgs();
+            if (argz.length < 2) throw new ParseException("Argument missing");
+
+
+        } catch (ParseException e) {
+            System.out.println("\nERROR: "+e.getMessage()+"\n");
+            printUsage(options);
+            System.exit(1);
         }
+
 
         try {
 
+
             /* Init corba service */
-            CorbaManager cm = new CorbaManager(args[0], args[1]);
+            CorbaManager cm = new CorbaManager(argz[0], argz[1]);
            
             /* Create corba object */
             CoordinatorImpl coord = new CoordinatorImpl(10,10);

@@ -16,12 +16,14 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     public boolean loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
-        c.hello();
-        c.start(producers.get(0));
+        consumers.add(c);
+        Producer[] p = new Producer[producers.size()];
+        c.start(producers.toArray(p));
         return false; 
     }
 
     public boolean loginProducer(Producer p){ 
+        System.out.println("Login producer");
         producers.add(p);
         return false; 
     }

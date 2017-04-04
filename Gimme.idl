@@ -1,5 +1,7 @@
 module Gimme
 {
+
+   
   interface Producer
   {
     long getResource(in long amount) ;
@@ -7,10 +9,11 @@ module Gimme
   } ;
 
 
+  typedef sequence<Producer> TabProd;
   interface Consumer
   {
   //  oneway int stealResource(in string name, in int amount) ;
-    long start(in Producer p) ;
+    long start(in TabProd p) ;
     void hello() ; // test
   } ;
 

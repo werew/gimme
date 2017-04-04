@@ -20,8 +20,8 @@ public class ConsumerImpl extends ConsumerPOA {
         System.out.println("Hello!");
     }
 
-    public int start(Producer p){
-        p.queryAmount();
+    public int start(Producer[] p){
+        p[0].queryAmount();
         return 0;
     }
     

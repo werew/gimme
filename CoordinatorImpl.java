@@ -23,6 +23,13 @@ public class CoordinatorImpl extends CoordinatorPOA {
         return false; 
     }
 
+    public void resetProducers(int np){
+
+    }
+    public void resetConsumers(int nc){
+
+    }
+
     public boolean loginProducer(Producer p){ 
         System.out.println("Login producer");
         producers.add(p);
@@ -52,8 +59,6 @@ public class CoordinatorImpl extends CoordinatorPOA {
         options.addOption(producers); 
 
         return options;
-
-
     }
 
 
@@ -65,20 +70,34 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     public static void main(String args[]) {
 
-        String[] argz = null;
+        CoordinatorImpl coord = new CoordinatorImpl(2,2);
         Options options = getOptions();
+        CommandLine cmd = null;
+        String[] argz = null;
 
         try {
+            /* Parse options */
             CommandLineParser parser = new DefaultParser();
-            CommandLine cmd = parser.parse(options, args);
+            cmd = parser.parse(options, args);
+            
+            /* Check arguments */
             argz = cmd.getArgs();
             if (argz.length < 2) throw new ParseException("Argument missing");
-
 
         } catch (ParseException e) {
             System.out.println("\nERROR: "+e.getMessage()+"\n");
             printUsage(options,1);
         }
+
+
+
+        /* Init coodinator */
+        if (cmd.hasOption('c')) coord.resetConsumers(
+            Integer.parseInt(cmd.getOptionValue('c')));
+        if (cmd.hasOption('p')) coord.resetProducers(
+            Integer.parseInt(cmd.getOptionValue('p')));
+
+
 
 
         try {
@@ -88,7 +107,6 @@ public class CoordinatorImpl extends CoordinatorPOA {
             CorbaManager cm = new CorbaManager(argz[0], argz[1]);
            
             /* Create corba object */
-            CoordinatorImpl coord = new CoordinatorImpl(10,10);
             Coordinator href = CoordinatorHelper.narrow(cm.getRef(coord));
 
             /* Register object to name service */

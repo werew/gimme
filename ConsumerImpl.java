@@ -36,36 +36,19 @@ public class ConsumerImpl extends ConsumerPOA {
         } 
 
         try {
-            // Init ORB
-            String [] argv = {"-ORBInitialHost", args[0], "-ORBInitialPort", args[1]} ; 
-            ORB orb = ORB.init(argv, null) ;
+            CorbaManager cm = new CorbaManager(args[0],args[1]);
 
-            // Init POA
-            POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA")) ;
-            rootpoa.the_POAManager().activate() ;
-
-            // creer l'objet qui sera appele' depuis le serveur
+            /* Create corba object */ 
             consumer = new ConsumerImpl() ;
-            org.omg.CORBA.Object ref = rootpoa.servant_to_reference(consumer) ;
-            consumer.mycons = ConsumerHelper.narrow(ref) ; 
-            if (consumer.mycons == null) {
-                System.out.println("Pb pour obtenir une ref sur le client") ;
-                System.exit(1) ;
-            }
+            consumer.mycons = ConsumerHelper.narrow(cm.getRef(consumer)) ; 
 
-            // contacter le serveur
-            String reference = "corbaname::" + args[0] + ":" + args[1] + "#Coordinator" ;
-            org.omg.CORBA.Object obj = orb.string_to_object(reference) ;
-
-            // obtenir reference sur l'objet distant
-            consumer.coordinator = CoordinatorHelper.narrow(obj) ;
-            if (consumer.coordinator == null){
-                System.out.println("Pb pour contacter le serveur") ;
-                System.exit(1) ;
-            } 
+            /* Get coordinator */
+            consumer.coordinator = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
 
             consumer.coordinator.loginConsumer(consumer.mycons);
-            orb.run();
+
+            cm.runORB();
+
 /*
             // lancer l'ORB dans un thread
             consumer.orbthread = new ThreadRun(orb) ;

@@ -1,6 +1,6 @@
 case $1 in
 1)
-tnameserv -ORBInitialPort 1050 &
+tnameserv -ORBInitialPort 1050 
 ;;
 2)
 java CoordinatorImpl localhost 1050

@@ -25,6 +25,10 @@ public class ConsumerImpl extends ConsumerPOA {
         System.out.println("Hello!");
     }
 
+    public boolean joinCoordinator(Coordinator c){
+        return c.loginConsumer(mycons);
+    }
+
     public int start(Producer[] p){
         p[0].queryAmount();
         return 0;
@@ -92,9 +96,14 @@ public class ConsumerImpl extends ConsumerPOA {
             consumer.mycons = ConsumerHelper.narrow(cm.getRef(consumer)) ; 
 
             /* Get coordinator */
-            consumer.coordinator = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
+            Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
+            
+            if (consumer.joinCoordinator(coord) == false) {
+                System.out.println("Impossible to join server") ;
+                printUsage(options, 1);
+            }
 
-            consumer.coordinator.loginConsumer(consumer.mycons);
+
 
             cm.runORB();
 

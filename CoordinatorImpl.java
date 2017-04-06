@@ -14,6 +14,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     private Consumer[] consumers;
     private Producer[] producers;
+    boolean taketurns = false;
 
     public boolean loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
@@ -47,6 +48,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
         Options options = new Options();
 
+        Option taketurns = new Option("t","taketurns",false, 
+            "if set the game will be played in turns");
         Option consumers = new Option("c","consumers",true, 
             "number of consumers of the game (default is 2)");
         consumers.setArgName("nb consumers");
@@ -54,6 +57,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             "number of producers of the game (default is 2)");
         producers.setArgName("nb producers");
 
+        options.addOption(taketurns); 
         options.addOption(consumers); 
         options.addOption(producers); 
 
@@ -84,23 +88,20 @@ public class CoordinatorImpl extends CoordinatorPOA {
             if (argz.length < 2) throw new ParseException("Argument missing");
 
         } catch (ParseException e) {
+
             System.out.println("\nERROR: "+e.getMessage()+"\n");
             printUsage(options,1);
         }
 
 
-
         /* Init coodinator */
+        if (cmd.hasOption('t')) coord.taketurns = true;
         if (cmd.hasOption('c')) coord.resetConsumers(
             Integer.parseInt(cmd.getOptionValue('c')));
         if (cmd.hasOption('p')) coord.resetProducers(
             Integer.parseInt(cmd.getOptionValue('p')));
-
-
-
-
+        
         try {
-
 
             /* Init corba service */
             CorbaManager cm = new CorbaManager(argz[0], argz[1]);

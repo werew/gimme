@@ -8,6 +8,7 @@ import Gimme.Producer;
 import Gimme.Coordinator;
 import Gimme.CoordinatorPOA;
 import Gimme.CoordinatorHelper;
+import Gimme.GameInfos;
 import org.apache.commons.cli.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
@@ -15,6 +16,14 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private Consumer[] consumers;
     private Producer[] producers;
     boolean taketurns = false;
+    boolean running = false;
+
+    public GameInfos getGameInfos(){
+        GameInfos gi = new GameInfos();
+        gi.taketurns = taketurns;
+        gi.running = running;
+        return gi;
+    }
 
     public boolean loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
@@ -100,9 +109,9 @@ public class CoordinatorImpl extends CoordinatorPOA {
             Integer.parseInt(cmd.getOptionValue('c')));
         if (cmd.hasOption('p')) coord.resetProducers(
             Integer.parseInt(cmd.getOptionValue('p')));
+
         
         try {
-
             /* Init corba service */
             CorbaManager cm = new CorbaManager(argz[0], argz[1]);
            
@@ -116,6 +125,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             cm.runORB() ;
 
         } catch (Exception e) {
+
             System.err.println("ERROR: " + e) ;
             e.printStackTrace(System.out) ;
         }

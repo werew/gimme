@@ -26,6 +26,22 @@ public class ConsumerImpl extends ConsumerPOA {
         System.out.println("Hello!");
     }
 
+    public int start(Producer[] p){
+        p[0].queryAmount();
+        return 0;
+    }
+
+
+
+    /**
+     * @brief Try to join a coordinator
+     *
+     * Try to join a coordinator which is proposing a game
+     * which parameters match the one of the consumer.
+     * @param c Coordinator to join 
+     * @return true if the coordinator has been joined 
+     *         succesfully, false otherwise
+     */
     public boolean joinCoordinator(Coordinator c){
         /* Do game types match ? */
         GameInfos gi = c.getGameInfos();
@@ -40,16 +56,25 @@ public class ConsumerImpl extends ConsumerPOA {
         return true;
     }
 
-    public int start(Producer[] p){
-        p[0].queryAmount();
-        return 0;
-    }
-    
+
+
+    /* @brief Turn on human interaction */ 
     public void setHuman(){
         taketurns = true;
         human = true;
     }
-    
+
+   
+
+    /**
+     * @brief Generate cli options
+     * 
+     * Retrieve an object Options containing all the
+     * command line options used by the consumer
+     * executable and their description
+     *
+     * @return an object of type Options
+     */
     private static Options getOptions(){
 
         Option taketurns = new Option("t","taketurns",false, 
@@ -64,11 +89,20 @@ public class ConsumerImpl extends ConsumerPOA {
         return options;
     }
 
+
+
+    /**
+     * @brief Print usage and exit the program
+     * @param options options to use for the usage description 
+     * @param exitcode exit code of the program
+     */
     private static void printUsage(Options options, int exitcode){
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("java ConsumerImpl [OPTIONS] <Name Server> <Port>", options);
         System.exit(exitcode);
     }
+
+
 
     public static void main(String args[]){
 

@@ -17,8 +17,9 @@ public class ConsumerImpl extends ConsumerPOA {
 
     boolean taketurns = false;
     private boolean human = false;
-    Consumer mycons;
-    Coordinator coordinator;
+    private Coordinator coordinator = null;
+
+    Consumer mycons = null;
     ThreadRun orbthread;
 
     public void hello(){
@@ -26,7 +27,17 @@ public class ConsumerImpl extends ConsumerPOA {
     }
 
     public boolean joinCoordinator(Coordinator c){
-        return c.loginConsumer(mycons);
+        /* Do game types match ? */
+        GameInfos gi = c.getGameInfos();
+        if (gi.taketurns != this.taketurns) return false;
+
+        /* Cannot join running games */
+        if (gi.running) return false;
+       
+        /* Login */ 
+        if (c.loginConsumer(mycons) == false) return false;
+        coordinator = c;
+        return true;
     }
 
     public int start(Producer[] p){

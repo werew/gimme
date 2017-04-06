@@ -35,7 +35,7 @@ public class ConsumerImpl extends ConsumerPOA {
         if (gi.running) return false;
        
         /* Login */ 
-        if (c.loginConsumer(mycons) == false) return false;
+        if (c.loginConsumer(mycons) != Common.SUCCESS) return false;
         coordinator = c;
         return true;
     }

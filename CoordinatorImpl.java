@@ -25,11 +25,11 @@ public class CoordinatorImpl extends CoordinatorPOA {
         return gi;
     }
 
-    public boolean loginConsumer(Consumer c){ 
+    public int loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
         consumers[consumers.length] = c;
         c.start(producers);
-        return false; 
+        return Common.SUCCESS; 
     }
 
     public void resetProducers(int np){
@@ -40,10 +40,10 @@ public class CoordinatorImpl extends CoordinatorPOA {
         consumers = new Consumer[nc];
     }
 
-    public boolean loginProducer(Producer p){ 
+    public int loginProducer(Producer p){ 
         System.out.println("Login producer");
         producers[producers.length] = p;
-        return false; 
+        return Common.SUCCESS; 
     }
 
     public CoordinatorImpl(int maxprod, int maxcons){

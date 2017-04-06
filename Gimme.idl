@@ -24,8 +24,8 @@ module Gimme
 
   interface Coordinator
   {
-    boolean loginConsumer(in Consumer c) ;
-    boolean loginProducer(in Producer p) ;
+    long loginConsumer(in Consumer c) ;
+    long loginProducer(in Producer p) ;
     GameInfos getGameInfos();
   } ;
 

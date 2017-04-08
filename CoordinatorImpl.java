@@ -27,6 +27,16 @@ public class CoordinatorImpl extends CoordinatorPOA {
         resetConsumers(maxcons); resetProducers(maxprod);
     }
 
+    public void resetProducers(int np){
+        nprod = 0; 
+        producers = new Producer[np];
+    }
+
+    public void resetConsumers(int nc){
+        ncons = 0;
+        consumers = new Consumer[nc];
+    }
+
     public GameInfos getGameInfos(){
         GameInfos gi = new GameInfos();
         gi.taketurns = taketurns;
@@ -39,13 +49,10 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
         /* Check if game is full */
         if (ncons == consumers.length) return Common.FULL;
-
         consumers[ncons++] = c;
 
-        /* TODO: move to start game method */
-        c.start(producers, consumers);
+        if (testStartGame()) launchGame();
 
-        
         return Common.SUCCESS; 
     }
 
@@ -54,23 +61,27 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
         /* Check if game is full */
         if (nprod == producers.length) return Common.FULL;
-
         producers[nprod++] = p;
+
+        if (testStartGame()) launchGame();
+
         return Common.SUCCESS; 
     }
 
-    public void resetProducers(int np){
-        nprod = 0; 
-        producers = new Producer[np];
+
+    private boolean testStartGame(){
+        return ( running == false && 
+                 ncons   == consumers.length &&
+                 nprod   == producers.length
+               );
     }
 
-    public void resetConsumers(int nc){
-        ncons = 0;
-        consumers = new Consumer[nc];
-    }
+    private void launchGame(){
 
-    private void startGame(){
-        System.out.println("Starting game!");
+        System.out.println("Start Game");
+        /* TODO: for every consumer */
+        // c.start(producers, consumers);
+        
     }
 
 

@@ -28,10 +28,6 @@ implements ConsumerOperations {
 
     ThreadRun orbthread;
 
-    public void hello(){
-        System.out.println("Hello!");
-    }
-
     public int start(Producer[] p, Consumer[] c){
         prods = p; cons = c;
         // TODO run

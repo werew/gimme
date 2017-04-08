@@ -9,6 +9,7 @@ import Gimme.Coordinator;
 import Gimme.CoordinatorPOA;
 import Gimme.CoordinatorHelper;
 import Gimme.GameInfos;
+import Gimme.Agent;
 import org.apache.commons.cli.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
@@ -84,13 +85,17 @@ public class CoordinatorImpl extends CoordinatorPOA {
         timer.schedule(new TimerTask() {
             public void run() {
                 System.out.println("Hello");
-                producers[0].logmsg("Game has started!!",0);
+                broadcastMsg(producers,"Game has started!!",0);
             }
         }, 5000);
 
         /* TODO: for every consumer */
         // c.start(producers, consumers);
         
+    }
+
+    private void broadcastMsg(Agent[] agents, String msg, int type){
+        for (Agent a : agents) a.logmsg(msg,type);
     }
 
 

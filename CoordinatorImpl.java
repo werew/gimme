@@ -13,10 +13,16 @@ import org.apache.commons.cli.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
 
-    private ArrayList<Consumer> consumers;
-    private ArrayList<Producer> producers;
-    boolean taketurns = false;
-    boolean running = false;
+    /* Logged consumers and producers */
+    private Consumer[] consumers; 
+    private Producer[] producers;
+    private int ncons = 0;
+    private int nprod = 0;
+
+    /* Some infos on the game */
+    private boolean taketurns = false;
+    private boolean running = false;
+
 
     public GameInfos getGameInfos(){
         GameInfos gi = new GameInfos();
@@ -27,28 +33,30 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     public int loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
-        consumers.add(c); 
+        consumers[ncons++] = c;
 
         /* TODO: move to start game method */
-        Producer[] ps = new Producer[producers.size()];
-        Consumer[] cs = new Consumer[consumers.size()];
-        c.start(producers.toArray(ps), consumers.toArray(cs));
+        c.start(producers, consumers);
+
         return Common.SUCCESS; 
-    }
-
-    public void resetProducers(int np){
-        producers = new ArrayList<Producer>(np);
-    }
-
-    public void resetConsumers(int nc){
-        consumers = new ArrayList<Consumer>(nc);
     }
 
     public int loginProducer(Producer p){ 
         System.out.println("Login producer");
-        producers.add(p);
+        producers[nprod++] = p;
         return Common.SUCCESS; 
     }
+
+    public void resetProducers(int np){
+        nprod = 0; 
+        producers = new Producer[np];
+    }
+
+    public void resetConsumers(int nc){
+        ncons = 0;
+        consumers = new Consumer[nc];
+    }
+
 
     public CoordinatorImpl(int maxprod, int maxcons){
         resetConsumers(maxcons); resetProducers(maxprod);

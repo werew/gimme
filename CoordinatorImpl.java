@@ -13,8 +13,8 @@ import org.apache.commons.cli.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
 
-    private Consumer[] consumers;
-    private Producer[] producers;
+    private ArrayList<Consumer> consumers;
+    private ArrayList<Producer> producers;
     boolean taketurns = false;
     boolean running = false;
 
@@ -27,22 +27,26 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     public int loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
-        consumers[consumers.length] = c;
-        c.start(producers);
+        consumers.add(c); 
+
+        /* TODO: move to start game method */
+        Producer[] ps = new Producer[producers.size()];
+        Consumer[] cs = new Consumer[consumers.size()];
+        c.start(producers.toArray(ps), consumers.toArray(cs));
         return Common.SUCCESS; 
     }
 
     public void resetProducers(int np){
-        producers = new Producer[np];
+        producers = new ArrayList<Producer>(np);
     }
 
     public void resetConsumers(int nc){
-        consumers = new Consumer[nc];
+        consumers = new ArrayList<Consumer>(nc);
     }
 
     public int loginProducer(Producer p){ 
         System.out.println("Login producer");
-        producers[producers.length] = p;
+        producers.add(p);
         return Common.SUCCESS; 
     }
 

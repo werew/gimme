@@ -14,10 +14,11 @@ module Gimme
   } ;
 
 
-  typedef sequence<Producer> TabProd;
   interface Consumer
   {
-    long start(in TabProd p) ;
+  typedef sequence<Producer> TabProd;
+  typedef sequence<Consumer> TabCons;
+    long start(in TabProd p, in TabCons c) ;
     void hello() ; // test
   } ;
 

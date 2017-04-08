@@ -20,14 +20,19 @@ public class ConsumerImpl extends ConsumerPOA {
     private Coordinator coordinator = null;
 
     Consumer mycons = null;
+
+    Producer[] prods;
+    Consumer[] cons;
+
     ThreadRun orbthread;
 
     public void hello(){
         System.out.println("Hello!");
     }
 
-    public int start(Producer[] p){
-        p[0].queryAmount();
+    public int start(Producer[] p, Consumer[] c){
+        prods = p; cons = c;
+        // TODO run
         return 0;
     }
 

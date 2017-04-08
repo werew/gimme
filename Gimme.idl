@@ -6,15 +6,20 @@ module Gimme
     boolean running ;
   } ;
 
-   
-  interface Producer
+  
+  interface Agent
+  {
+  // TODO insert common methods here
+  } ; 
+
+  interface Producer : Agent
   {
     long getResource(in long amount) ;
     long queryAmount() ;
   } ;
 
 
-  interface Consumer
+  interface Consumer : Agent
   {
   typedef sequence<Producer> TabProd;
   typedef sequence<Consumer> TabCons;

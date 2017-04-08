@@ -36,12 +36,10 @@ implements ProducerOperations {
             ProducerPOATie tie = new ProducerPOATie(producer, cm.rootPOA);
             producer.myprod = tie._this(cm.orb);
 
-            /* Create corba object */ 
-            //producer.myprod = ProducerHelper.narrow(cm.getRef(producer)) ; 
-
             /* Get coordinator */
             producer.coordinator = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
 
+            /* Login */
             producer.coordinator.loginProducer(producer.myprod);
 
             cm.runORB();

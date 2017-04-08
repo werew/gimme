@@ -147,8 +147,6 @@ implements ConsumerOperations {
             ConsumerPOATie tie = new ConsumerPOATie(consumer, cm.rootPOA);
             consumer.mycons = tie._this(cm.orb);
 
-            //consumer.mycons = ConsumerHelper.narrow(cm.getRef(consumer)) ; 
-
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
             

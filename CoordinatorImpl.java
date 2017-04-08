@@ -24,6 +24,11 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private boolean taketurns = false;
     private boolean running = false;
 
+    /* Some game values */
+    final int coutdown = 5;
+    final String readymsg = "Game will start in 5 seconds!";
+    final String startmsg = "Game has started!";
+
     public CoordinatorImpl(int maxprod, int maxcons){
         resetConsumers(maxcons); resetProducers(maxprod);
     }
@@ -78,16 +83,20 @@ public class CoordinatorImpl extends CoordinatorPOA {
     }
 
     private void launchGame(){
-
-        System.out.println("Start Game");
+        System.out.println("Launching Game");
+        broadcastMsg(producers,readymsg,0);
+        broadcastMsg(consumers,readymsg,0);
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
-                System.out.println("Hello");
-                broadcastMsg(producers,"Game has started!!",0);
+                broadcastMsg(producers,startmsg,0);
+                broadcastMsg(consumers,startmsg,0);
+
+                for (Consumer c : consumers) 
+                    c.start(producers,consumers);
             }
-        }, 5000);
+        }, coutdown * 1000);
 
         /* TODO: for every consumer */
         // c.start(producers, consumers);

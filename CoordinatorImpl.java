@@ -79,6 +79,14 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private void launchGame(){
 
         System.out.println("Start Game");
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                System.out.println("Hello");
+            }
+        }, 5000);
+
         /* TODO: for every consumer */
         // c.start(producers, consumers);
         

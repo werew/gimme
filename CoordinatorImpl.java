@@ -23,6 +23,9 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private boolean taketurns = false;
     private boolean running = false;
 
+    public CoordinatorImpl(int maxprod, int maxcons){
+        resetConsumers(maxcons); resetProducers(maxprod);
+    }
 
     public GameInfos getGameInfos(){
         GameInfos gi = new GameInfos();
@@ -33,16 +36,25 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     public int loginConsumer(Consumer c){ 
         System.out.println("Login consumer");
+
+        /* Check if game is full */
+        if (ncons == consumers.length) return Common.FULL;
+
         consumers[ncons++] = c;
 
         /* TODO: move to start game method */
         c.start(producers, consumers);
 
+        
         return Common.SUCCESS; 
     }
 
     public int loginProducer(Producer p){ 
         System.out.println("Login producer");
+
+        /* Check if game is full */
+        if (nprod == producers.length) return Common.FULL;
+
         producers[nprod++] = p;
         return Common.SUCCESS; 
     }
@@ -57,9 +69,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
         consumers = new Consumer[nc];
     }
 
-
-    public CoordinatorImpl(int maxprod, int maxcons){
-        resetConsumers(maxcons); resetProducers(maxprod);
+    private void startGame(){
+        System.out.println("Starting game!");
     }
 
 

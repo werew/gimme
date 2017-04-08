@@ -14,5 +14,7 @@ import Gimme.GameInfos;
 import org.apache.commons.cli.*;
 
 public class AgentImpl extends AgentPOA {
-
+    public void logmsg(String msg, int type){
+        System.out.println(msg);
+    }
 }

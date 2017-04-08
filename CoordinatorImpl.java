@@ -84,6 +84,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         timer.schedule(new TimerTask() {
             public void run() {
                 System.out.println("Hello");
+                producers[0].logmsg("Game has started!!",0);
             }
         }, 5000);
 

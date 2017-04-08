@@ -10,6 +10,7 @@ module Gimme
   interface Agent
   {
   // TODO insert common methods here
+    void logmsg(in string msg, in long type);
   } ; 
 
   interface Producer : Agent

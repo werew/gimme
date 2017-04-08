@@ -5,12 +5,14 @@ import java.io.*;
 import java.io.IOException;
 import org.omg.CosNaming.*;
 import Gimme.Producer;
+import Gimme.ProducerPOATie;
 import Gimme.Coordinator;
 import Gimme.CoordinatorHelper;
-import Gimme.ProducerPOA;
+import Gimme.ProducerOperations;
 import Gimme.ProducerHelper;
 
-public class ProducerImpl extends ProducerPOA {
+public class ProducerImpl extends AgentImpl
+implements ProducerOperations {
     Producer myprod;
     Coordinator coordinator;
 
@@ -29,9 +31,13 @@ public class ProducerImpl extends ProducerPOA {
         try {
             CorbaManager cm = new CorbaManager(args[0],args[1]);
 
-            /* Create corba object */ 
+            /* Create corba object */
             ProducerImpl producer = new ProducerImpl() ;
-            producer.myprod = ProducerHelper.narrow(cm.getRef(producer)) ; 
+            ProducerPOATie tie = new ProducerPOATie(producer, cm.rootPOA);
+            producer.myprod = tie._this(cm.orb);
+
+            /* Create corba object */ 
+            //producer.myprod = ProducerHelper.narrow(cm.getRef(producer)) ; 
 
             /* Get coordinator */
             producer.coordinator = CoordinatorHelper.narrow(cm.getRef("Coordinator"));

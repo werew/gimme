@@ -8,12 +8,14 @@ import Gimme.Producer;
 import Gimme.Consumer;
 import Gimme.Coordinator;
 import Gimme.CoordinatorHelper;
-import Gimme.ConsumerPOA;
+import Gimme.ConsumerOperations;
+import Gimme.ConsumerPOATie;
 import Gimme.ConsumerHelper;
 import Gimme.GameInfos;
 import org.apache.commons.cli.*;
 
-public class ConsumerImpl extends ConsumerPOA {
+public class ConsumerImpl extends AgentImpl 
+implements ConsumerOperations {
 
     boolean taketurns = false;
     private boolean human = false;
@@ -142,8 +144,10 @@ public class ConsumerImpl extends ConsumerPOA {
             CorbaManager cm = new CorbaManager(args[0],args[1]);
 
             /* Create corba object */ 
-            consumer = new ConsumerImpl() ;
-            consumer.mycons = ConsumerHelper.narrow(cm.getRef(consumer)) ; 
+            ConsumerPOATie tie = new ConsumerPOATie(consumer, cm.rootPOA);
+            consumer.mycons = tie._this(cm.orb);
+
+            //consumer.mycons = ConsumerHelper.narrow(cm.getRef(consumer)) ; 
 
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));

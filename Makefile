@@ -2,6 +2,7 @@
 
 build:
 	idlj -fall Gimme.idl
+	idlj -fallTIE Gimme.idl
 	javac -classpath "Gimme:." *.java
 
 clean:

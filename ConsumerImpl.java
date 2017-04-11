@@ -34,6 +34,10 @@ implements ConsumerOperations {
         return 0;
     }
 
+    public void ConsumerImpl(boolean human){
+	if (human) this.setHuman();
+        resources = new HashMap<String,int>();	
+    }
 
 
     public void feed(Producer[] p, Consumer[] c){
@@ -50,9 +54,14 @@ implements ConsumerOperations {
      *         succesfully, false otherwise
      */
     public boolean joinCoordinator(Coordinator c){
-        /* Do game types match ? */
+
         GameInfos gi = c.getGameInfos();
-        if (gi.taketurns != this.taketurns) return false;
+
+        /* Set game style */
+        if (gi.taketurns != this.taketurns){
+	   if (this.human && !gi.taketurns) return false;
+           this.taketurns = gi.taketurns;
+	}
 
         /* Cannot join running games */
         if (gi.running) return false;
@@ -84,8 +93,6 @@ implements ConsumerOperations {
      */
     private static Options getOptions(){
 
-        Option taketurns = new Option("t","taketurns",false, 
-            "For games which are played in turns");
         Option human = new Option("h","human",false, 
             "Activate user interaction (for games played in turns)");
 
@@ -134,10 +141,7 @@ implements ConsumerOperations {
 
 
         /* Create and init consumer */
-        ConsumerImpl consumer = new ConsumerImpl();
-
-        if (cmd.hasOption('t')) consumer.taketurns = true;
-        if (cmd.hasOption('h')) consumer.setHuman();
+        ConsumerImpl consumer = new ConsumerImpl(cmd.hasOption('h'));
 
 
         try {

@@ -87,13 +87,8 @@ implements ProducerOperations {
             argz = cmd.getArgs();
             if (argz.length < 3) throw new ParseException("Argument missing");
 
-        } catch (ParseException e) {
 
-            System.out.println("\nERROR: "+e.getMessage()+"\n");
-            printUsage(options,1);
-        }
-
-        try {
+            /* Open a server */
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
 
             /* Create corba object */
@@ -107,7 +102,12 @@ implements ProducerOperations {
             /* Login */
             producer.coordinator.loginProducer(producer.myprod);
 
+            /* Run server */
             cm.runORB();
+
+        } catch (ParseException e) {
+            System.out.println("\nERROR: "+e.getMessage()+"\n");
+            printUsage(options,1);
 
         } catch (Exception e) {
             System.out.println("ERROR : " + e) ;

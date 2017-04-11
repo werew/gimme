@@ -131,18 +131,10 @@ implements ConsumerOperations {
             argz = cmd.getArgs();
             if (argz.length < 2) throw new ParseException("Argument missing");
 
-        } catch (ParseException e) {
+            /* Create and init consumer */
+            ConsumerImpl consumer = new ConsumerImpl(cmd.hasOption('h'));
 
-            System.out.println("\nERROR: "+e.getMessage()+"\n");
-            printUsage(options,1);
-        }
-
-
-        /* Create and init consumer */
-        ConsumerImpl consumer = new ConsumerImpl(cmd.hasOption('h'));
-
-
-        try {
+            /* Create a server */
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
 
             /* Create corba object */ 
@@ -158,21 +150,16 @@ implements ConsumerOperations {
             }
 
 
-
+            /* Run server */
             cm.runORB();
 
-/*
-            // lancer l'ORB dans un thread
-            consumer.orbthread = new ThreadRun(orb) ;
-            consumer.orbthread.start() ;
-*/
-
+        } catch (ParseException e) {
+            System.out.println("\nERROR: "+e.getMessage()+"\n");
+            printUsage(options,1);
 
         } catch (Exception e) {
             System.out.println("ERROR : " + e) ;
             e.printStackTrace(System.out) ;
-        } finally {
-           if (consumer != null) consumer.orbthread.shutdown() ;
-        }
+        } 
     }
 }

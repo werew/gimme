@@ -149,7 +149,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     public static void main(String args[]) {
 
-        CoordinatorImpl coord = new CoordinatorImpl(2,2);
+        CoordinatorImpl coord = new CoordinatorImpl(1,1);
         Options options = getOptions();
         CommandLine cmd = null;
         String[] argz = null;
@@ -163,22 +163,13 @@ public class CoordinatorImpl extends CoordinatorPOA {
             argz = cmd.getArgs();
             if (argz.length < 2) throw new ParseException("Argument missing");
 
-        } catch (ParseException e) {
+            /* Init coodinator */
+            if (cmd.hasOption('t')) coord.taketurns = true;
+            if (cmd.hasOption('c')) coord.resetConsumers(
+                Integer.parseInt(cmd.getOptionValue('c')));
+            if (cmd.hasOption('p')) coord.resetProducers(
+                Integer.parseInt(cmd.getOptionValue('p')));
 
-            System.out.println("\nERROR: "+e.getMessage()+"\n");
-            printUsage(options,1);
-        }
-
-
-        /* Init coodinator */
-        if (cmd.hasOption('t')) coord.taketurns = true;
-        if (cmd.hasOption('c')) coord.resetConsumers(
-            Integer.parseInt(cmd.getOptionValue('c')));
-        if (cmd.hasOption('p')) coord.resetProducers(
-            Integer.parseInt(cmd.getOptionValue('p')));
-
-        
-        try {
             /* Init corba service */
             CorbaManager cm = new CorbaManager(argz[0], argz[1]);
            
@@ -191,8 +182,11 @@ public class CoordinatorImpl extends CoordinatorPOA {
             System.out.println("Coordinator ready and waiting ...") ;
             cm.runORB() ;
 
-        } catch (Exception e) {
+        } catch (ParseException e) {
+            System.out.println("\nERROR: "+e.getMessage()+"\n");
+            printUsage(options,1);
 
+        } catch (Exception e) {
             System.err.println("ERROR: " + e) ;
             e.printStackTrace(System.out) ;
         }

@@ -1,3 +1,0 @@
-idlj -fall Chat.idl
-javac -classpath "Chat:." *.java
-

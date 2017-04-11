@@ -10,16 +10,16 @@ import Gimme.Coordinator;
 import Gimme.CoordinatorHelper;
 import Gimme.ProducerOperations;
 import Gimme.ProducerHelper;
+import Gimme.Resource;
 
 public class ProducerImpl extends AgentImpl
 implements ProducerOperations {
     Producer myprod;
     Coordinator coordinator;
+    Resource resource;
 
-    public int getResource(int amount){ return 0;}
-    public int queryAmount(){
-        System.out.println("Query!!");
-        return 0;}
+    public Resource getResource(Resource request){ return null;}
+    public Resource queryResource(){ return resource; }
 
     public static void main(String args[]){
 

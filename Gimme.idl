@@ -6,6 +6,12 @@ module Gimme
     boolean running ;
   } ;
 
+  struct Resource
+  {
+    string type;
+    long amount;
+  } ;
+
   
   interface Agent
   {
@@ -15,8 +21,8 @@ module Gimme
 
   interface Producer : Agent
   {
-    long getResource(in long amount) ;
-    long queryAmount() ;
+    Resource getResource(in Resource request) ;
+    Resource queryResource() ;
   } ;
 
 

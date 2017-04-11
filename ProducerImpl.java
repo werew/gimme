@@ -101,21 +101,9 @@ implements ProducerOperations {
 
             cm.runORB();
 
-            /*
-            // lancer l'ORB dans un thread
-            client.thread = new ThreadRun(orb) ;
-            client.thread.start() ;
-            client.loop() ;
-            */
         } catch (Exception e) {
             System.out.println("ERROR : " + e) ;
             e.printStackTrace(System.out) ;
-        } finally {
-        /*
-          // shutdown
-          if (client != null)
-            client.thread.shutdown() ;
-        */
-        }
+        } 
     }
 }

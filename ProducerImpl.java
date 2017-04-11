@@ -19,6 +19,13 @@ implements ProducerOperations {
     Coordinator coordinator;
     Resource resource;
 
+    public ProducerImpl(String type){
+        this(type,0);
+    }
+    public ProducerImpl(String type, int amount){
+        resource = new Resource(type,amount);
+    }
+
 
     public Resource getResource(Resource request){
         if (request.type != resource.type || 
@@ -90,7 +97,7 @@ implements ProducerOperations {
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
 
             /* Create corba object */
-            ProducerImpl producer = new ProducerImpl() ;
+            ProducerImpl producer = new ProducerImpl(argz[2]) ;
             ProducerPOATie tie = new ProducerPOATie(producer, cm.rootPOA);
             producer.myprod = tie._this(cm.orb);
 

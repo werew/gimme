@@ -18,7 +18,16 @@ implements ProducerOperations {
     Coordinator coordinator;
     Resource resource;
 
-    public Resource getResource(Resource request){ return null;}
+    synchronized public Resource getResource(Resource request){
+	if (request.type != resource.type || request.amount > resource.amount){
+		request.amount = 0;
+		return request;
+	}
+
+	resource.amount -= request.amount;
+	return request;
+    }
+
     public Resource queryResource(){ return resource; }
 
     public static void main(String args[]){

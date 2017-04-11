@@ -1,14 +1,14 @@
 case $1 in
 1)
-tnameserv -ORBInitialPort 1050 
+tnameserv -ORBInitialPort 8921 
 ;;
 2)
-java CoordinatorImpl localhost 1050
+java CoordinatorImpl localhost 8921
 ;;
 3)
-java ConsumerImpl localhost 1050
+java ConsumerImpl localhost 8921
 ;;
 4)
-java ProducerImpl localhost 1050 Dinero
+java ProducerImpl localhost 8921 Dinero
 ;;
 esac

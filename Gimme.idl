@@ -30,7 +30,7 @@ module Gimme
   {
   typedef sequence<Producer> TabProd;
   typedef sequence<Consumer> TabCons;
-    long start() ;
+    oneway void start() ;
     void feed(in TabProd p, in TabCons c) ;
   } ;
 

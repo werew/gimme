@@ -29,9 +29,8 @@ implements ConsumerOperations {
 
     ThreadRun orbthread;
 
-    public int start(){
+    public void start(){
         // TODO run
-        return 0;
     }
 
     public ConsumerImpl(boolean human){

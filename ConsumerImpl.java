@@ -28,13 +28,16 @@ implements ConsumerOperations {
 
     ThreadRun orbthread;
 
-    public int start(Producer[] p, Consumer[] c){
-        prods = p; cons = c;
+    public int start(){
         // TODO run
         return 0;
     }
 
 
+
+    public void feed(Producer[] p, Consumer[] c){
+        prods = p; cons = c;
+    }
 
     /**
      * @brief Try to join a coordinator

@@ -99,7 +99,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
                     for (int j = 0; j < opponents.length; j++){
                         opponents[j] = consumers[ j < i ? j : j+1];
                     }
-                    consumers[i].start(producers,opponents);
+                    consumers[i].feed(producers,opponents);
                 }
             }
         }, coutdown * 1000);

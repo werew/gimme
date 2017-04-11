@@ -24,7 +24,8 @@ module Gimme
   {
   typedef sequence<Producer> TabProd;
   typedef sequence<Consumer> TabCons;
-    long start(in TabProd p, in TabCons c) ;
+    long start() ;
+    void feed(in TabProd p, in TabCons c) ;
   } ;
 
 

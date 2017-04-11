@@ -9,6 +9,6 @@ java CoordinatorImpl localhost 1050
 java ConsumerImpl localhost 1050
 ;;
 4)
-java ProducerImpl localhost 1050
+java ProducerImpl localhost 1050 Dinero
 ;;
 esac

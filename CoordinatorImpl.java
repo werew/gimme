@@ -103,8 +103,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 }
 
 
-		for (Consumer c : consumers) c.start();
-		for (Producer p : producers);// p.start();
+                for (Consumer c : consumers) c.start();
+                for (Producer p : producers);// p.start();
             }
         }, coutdown * 1000);
 

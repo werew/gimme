@@ -35,7 +35,7 @@ implements ConsumerOperations {
     }
 
     public ConsumerImpl(boolean human){
-	if (human) this.setHuman();
+        if (human) this.setHuman();
         resources = new HashMap<String,Integer>();	
     }
 
@@ -59,9 +59,9 @@ implements ConsumerOperations {
 
         /* Set game style */
         if (gi.taketurns != this.taketurns){
-	   if (this.human && !gi.taketurns) return false;
-           this.taketurns = gi.taketurns;
-	}
+            if (this.human && !gi.taketurns) return false;
+            this.taketurns = gi.taketurns;
+	    }
 
         /* Cannot join running games */
         if (gi.running) return false;

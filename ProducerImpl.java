@@ -21,13 +21,14 @@ implements ProducerOperations {
 
 
     public Resource getResource(Resource request){
-	if (request.type != resource.type || request.amount > resource.amount){
-		request.amount = 0;
-		return request;
-	}
+        if (request.type != resource.type || 
+            request.amount > resource.amount){
+            request.amount = 0;
+            return request;
+        }
 
-	resource.amount -= request.amount;
-	return request;
+        resource.amount -= request.amount;
+        return request;
     }
 
     public Resource queryResource(){ return resource; }

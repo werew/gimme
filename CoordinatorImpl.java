@@ -93,8 +93,14 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 broadcastMsg(producers,startmsg,0);
                 broadcastMsg(consumers,startmsg,0);
 
-                for (Consumer c : consumers) 
-                    c.start(producers,consumers);
+                /* Send list of producers and opponents to the consumers */
+                Consumer[] opponents = new Consumer[consumers.length-1];
+                for (int i = 0; i < consumers.length; i++){
+                    for (int j = 0; j < opponents.length; j++){
+                        opponents[j] = consumers[ j < i ? j : j+1];
+                    }
+                    consumers[i].start(producers,opponents);
+                }
             }
         }, coutdown * 1000);
 

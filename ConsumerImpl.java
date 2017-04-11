@@ -17,12 +17,13 @@ import org.apache.commons.cli.*;
 public class ConsumerImpl extends AgentImpl 
 implements ConsumerOperations {
 
+    private Consumer mycons = null;
+
     boolean taketurns = false;
     private boolean human = false;
+    private HashMap<String,int> resources;
+
     private Coordinator coordinator = null;
-
-    Consumer mycons = null;
-
     Producer[] prods;
     Consumer[] cons;
 

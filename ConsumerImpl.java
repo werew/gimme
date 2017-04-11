@@ -144,7 +144,7 @@ implements ConsumerOperations {
 
 
         try {
-            CorbaManager cm = new CorbaManager(args[0],args[1]);
+            CorbaManager cm = new CorbaManager(argz[0],argz[1]);
 
             /* Create corba object */ 
             ConsumerPOATie tie = new ConsumerPOATie(consumer, cm.rootPOA);

@@ -21,7 +21,7 @@ implements ConsumerOperations {
 
     boolean taketurns = false;
     private boolean human = false;
-    private HashMap<String,int> resources;
+    private HashMap<String,Integer> resources;
 
     private Coordinator coordinator = null;
     Producer[] prods;
@@ -34,9 +34,9 @@ implements ConsumerOperations {
         return 0;
     }
 
-    public void ConsumerImpl(boolean human){
+    public ConsumerImpl(boolean human){
 	if (human) this.setHuman();
-        resources = new HashMap<String,int>();	
+        resources = new HashMap<String,Integer>();	
     }
 
 
@@ -97,7 +97,6 @@ implements ConsumerOperations {
             "Activate user interaction (for games played in turns)");
 
         Options options = new Options();
-        options.addOption(taketurns); 
         options.addOption(human); 
 
         return options;

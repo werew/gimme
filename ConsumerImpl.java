@@ -13,6 +13,8 @@ import Gimme.ConsumerOperations;
 import Gimme.ConsumerPOATie;
 import Gimme.ConsumerHelper;
 import Gimme.GameInfos;
+import Gimme.Agent;
+import java.util.concurrent.locks.*;
 import org.apache.commons.cli.*;
 
 public class ConsumerImpl extends AgentImpl 
@@ -20,8 +22,6 @@ implements ConsumerOperations {
 
     private Consumer mycons = null;
 
-    boolean taketurns = false;
-    private boolean human = false;
     private HashMap<String,Integer> resources;
     private HashMap<String,ArrayList<Producer>> view;
 
@@ -29,18 +29,82 @@ implements ConsumerOperations {
     Producer[] prods;
     Consumer[] cons;
 
-    ThreadRun orbthread;
+
+    /* To manage turns */
+    private boolean taketurns = false;
+    private boolean human = false;
+    private boolean isMyTurn;
+    private Lock turnLock;
+    private Condition turnAvailable;
+    private Condition turnFinished;
+
+    private void turnActionPrologue(){
+        try {
+            turnLock.lock();
+            while (isMyTurn == false) turnAvailable.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void turnActionEpilogue(){
+        try {
+            isMyTurn = false; 
+            turnFinished.signal(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally { // Ensure unlock
+            turnLock.unlock();
+        }
+    }
+
 
     public void start(){
         teststrategy();
     }
 
     private void teststrategy(){
-        for (int i = 0; i < prods.length; i++){
-            Resource r = prods[i].queryResource();
-            logmsg(r.type+" "+r.amount,0);
+        while (true) {
+            for (int i = 0; i < prods.length; i++){
+                Resource r = queryResource_wr(prods[i]);
+                logmsg(r.type+" "+r.amount,0);
+                try{Thread.sleep(1000);
+                } catch (Exception e) {}
+            }
         }
     } 
+
+    /* Wrappers */
+
+    private Resource getResource_wr(Agent a, Resource request){
+        turnActionPrologue();
+        Resource r = a.getResource(request);
+        turnActionEpilogue();
+        return r;
+    }
+
+    private Resource queryResource_wr(Producer p){
+        turnActionPrologue();
+        Resource r = p.queryResource();
+        turnActionEpilogue();
+        return r;
+    }
+
+    public boolean playTurn(){
+        try {
+            turnLock.lock();
+            while (isMyTurn == true) turnFinished.await();
+            isMyTurn = true;
+            turnAvailable.signal();
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally { // Ensure unlock
+            turnLock.unlock();
+        }
+
+        return true;
+    }
+        
 
     public ConsumerImpl(boolean human){
         if (human) this.setHuman();
@@ -71,10 +135,11 @@ implements ConsumerOperations {
         GameInfos gi = c.getGameInfos();
 
         /* Set game style */
-        if (gi.taketurns != this.taketurns){
-            if (this.human && !gi.taketurns) return false;
-            this.taketurns = gi.taketurns;
-	    }
+        if (gi.taketurns == true){
+            if (this.taketurns == false) setTurnGame();
+	    } else if (this.human == true) {
+            return false;
+        }
 
         /* Cannot join running games */
         if (gi.running) return false;
@@ -87,9 +152,17 @@ implements ConsumerOperations {
 
 
 
+    public void setTurnGame(){
+        taketurns = true;
+        isMyTurn = false;
+        turnLock = new ReentrantLock();
+        turnAvailable = turnLock.newCondition();
+        turnFinished = turnLock.newCondition();
+    }
+
     /* @brief Turn on human interaction */ 
     public void setHuman(){
-        taketurns = true;
+        setTurnGame();
         human = true;
     }
 
@@ -157,7 +230,8 @@ implements ConsumerOperations {
 
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
-            
+           
+            consumer.logmsg(argz[0]+" "+argz[1],0); 
             if (consumer.joinCoordinator(coord) == false) {
                 System.out.println("Impossible to join server") ;
                 printUsage(options, 1);

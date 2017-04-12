@@ -2,6 +2,7 @@
 
 TODO
 - Build a class for writing logs
+- Use human-readable ids
 
 NOTES
 - Explaining choice to use tie model to be able to use inheritance

@@ -53,6 +53,10 @@ implements ConsumerOperations {
         prods = p; cons = c;
     }
 
+    public Resource getResource(Resource request){
+        return new Resource("Test",0);
+    }
+
     /**
      * @brief Try to join a coordinator
      *

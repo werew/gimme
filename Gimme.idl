@@ -16,12 +16,12 @@ module Gimme
   interface Agent
   {
   // TODO insert common methods here
+    Resource getResource(in Resource request) ;
     void logmsg(in string msg, in long type);
   } ; 
 
   interface Producer : Agent
   {
-    Resource getResource(in Resource request) ;
     Resource queryResource() ;
   } ;
 

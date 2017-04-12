@@ -5,6 +5,7 @@ import java.io.*;
 import java.io.IOException;
 import org.omg.CosNaming.*;
 import Gimme.Producer;
+import Gimme.Resource;
 import Gimme.Agent;
 import Gimme.Coordinator;
 import Gimme.CoordinatorHelper;
@@ -13,9 +14,12 @@ import Gimme.AgentHelper;
 import Gimme.GameInfos;
 import org.apache.commons.cli.*;
 
-public class AgentImpl extends AgentPOA {
+public abstract class AgentImpl extends AgentPOA {
     /* TODO use log class to implement msg types */
     public void logmsg(String msg, int type){
         System.out.println(msg);
     }
+
+    public abstract Resource getResource(Resource request);
+
 }

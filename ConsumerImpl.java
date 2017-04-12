@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.omg.CosNaming.*;
 import Gimme.Producer;
 import Gimme.Consumer;
+import Gimme.Resource;
 import Gimme.Coordinator;
 import Gimme.CoordinatorHelper;
 import Gimme.ConsumerOperations;
@@ -22,6 +23,7 @@ implements ConsumerOperations {
     boolean taketurns = false;
     private boolean human = false;
     private HashMap<String,Integer> resources;
+    private HashMap<String,ArrayList<Producer>> view;
 
     private Coordinator coordinator = null;
     Producer[] prods;
@@ -30,12 +32,20 @@ implements ConsumerOperations {
     ThreadRun orbthread;
 
     public void start(){
-        // TODO run
+        teststrategy();
     }
+
+    private void teststrategy(){
+        for (int i = 0; i < prods.length; i++){
+            Resource r = prods[i].queryResource();
+            logmsg(r.type+" "+r.amount,0);
+        }
+    } 
 
     public ConsumerImpl(boolean human){
         if (human) this.setHuman();
         resources = new HashMap<String,Integer>();	
+        view = new HashMap<String,ArrayList<Producer>>();
     }
 
 

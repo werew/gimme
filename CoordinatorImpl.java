@@ -77,7 +77,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         }
 
         /* Check id */
-        if (id == "auto-set"){
+        if (id.equals("auto-set")){
             id = "Producer-"+producers.size();
         } else if (producers.containsKey(id)){
             return new Registration(false,id,usedid);
@@ -112,22 +112,25 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 broadcastMsg(consumers.values(),startmsg,0);
 
                 /* Send list of producers and opponents to the consumers */
-                Producer[] array_producers = producers.values().toArray(new Producer[producers.size()]);
-                Consumer[] array_consumers = consumers.values().toArray(new Consumer[consumers.size()]);
-                Consumer[] array_opponents = new Consumer[consumers.size()-1];
+                Producer[] list_producers = new Producer[producers.size()];
+                producers.values().toArray(list_producers);
+                String[] prods_ids = new String[producers.size()];
+                producers.keySet().toArray(prods_ids);
 
-                for (int i = 0; i < array_consumers.length; i++){
-                    for (int j = 0; j < array_opponents.length; j++){
-                        array_opponents[j] = array_consumers[ j < i ? j : j+1];
-                    }
-                    array_consumers[i].feed(array_producers,array_opponents);
+                Consumer[] list_opponents = new Consumer[consumers.size()-1];
+                consumers.values().toArray(list_opponents);
+                String[] cons_ids = new String[consumers.size()-1];
+                producers.keySet().toArray(cons_ids);
+
+                for (Consumer c : consumers.values()){
+                    c.updateProducers(list_producers,prods_ids);
+                    c.updateConsumers(list_opponents,cons_ids);
                 }
-
-
-                for (Consumer c : array_consumers) c.start();
+                
+                for (Consumer c : consumers.values()) c.start();
 
                 while (true) {
-                    for (Consumer c : array_consumers) c.playTurn();
+                    for (Consumer c : consumers.values()) c.playTurn();
                 }
                     
                 //for (Producer p : producers);// p.start();

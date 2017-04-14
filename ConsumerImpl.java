@@ -29,8 +29,8 @@ implements ConsumerOperations {
 
     /* Other game actors */
     private Coordinator coordinator = null;
-    Producer[] prods;
-    Consumer[] cons;
+    private HashMap<String,Consumer> cons;
+    private HashMap<String,Producer> prods;
 
 
     /* To manage turns */
@@ -68,8 +68,8 @@ implements ConsumerOperations {
 
     private void teststrategy(){
         while (true) {
-            for (int i = 0; i < prods.length; i++){
-                Resource r = queryResource_wr(prods[i]);
+            for (Producer p : prods.values()){
+                Resource r = queryResource_wr(p);
                 logmsg(r.type+" "+r.amount,0);
                 try{Thread.sleep(1000);
                 } catch (Exception e) {}
@@ -116,8 +116,16 @@ implements ConsumerOperations {
     }
 
 
-    public void feed(Producer[] p, Consumer[] c){
-        prods = p; cons = c;
+    public void updateConsumers(Consumer[] consumers, String[] ids){
+        cons  = new HashMap<String,Consumer>();    
+        for (int i = 0; i < consumers.length; i++) 
+            cons.put(ids[i],consumers[i]);
+    }
+
+    public void updateProducers(Producer[] producers, String[] ids){
+        prods = new HashMap<String,Producer>();    
+        for (int i = 0; i < producers.length; i++) 
+            prods.put(ids[i],producers[i]);
     }
 
     public Resource getResource(Resource request){

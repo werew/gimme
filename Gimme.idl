@@ -30,7 +30,7 @@ module Gimme
     Resource content; // If type = Query, this is the answer
                       // For failed requests the amount is 0
   } ;
-    
+
   
   interface Agent
   {
@@ -38,20 +38,22 @@ module Gimme
     void logmsg(in string msg, in long type);
   } ; 
 
+
   interface Producer : Agent
   {
     Resource queryResource() ;
   } ;
 
-
   interface Consumer : Agent
   {
     typedef sequence<Producer> TabProd;
     typedef sequence<Consumer> TabCons;
+    typedef sequence<string> TabIDs;
 
     oneway void start() ;
     boolean playTurn() ;
-    void feed(in TabProd p, in TabCons c) ;
+    void updateProducers(in TabProd producers, in TabIDs ids) ;
+    void updateConsumers(in TabCons consumers, in TabIDs ids) ;
   } ;
 
 

@@ -5,6 +5,7 @@ import java.io.*;
 import java.io.IOException;
 import org.omg.CosNaming.*;
 import Gimme.Producer;
+import Gimme.Registration;
 import Gimme.ProducerPOATie;
 import Gimme.Coordinator;
 import Gimme.CoordinatorHelper;
@@ -40,6 +41,19 @@ implements ProducerOperations {
 
     public Resource queryResource(){ return resource; }
 
+    public boolean joinCoordinator(Coordinator c, String id){
+
+        Registration r = c.loginProducer(myprod,id);
+        if (r.logged == false){
+            logmsg(r.msg,2);
+            return false;
+        }
+
+        coordinator = c;
+        gameID = r.id;
+        return true;
+    }
+
     /**
      * @brief Generate cli options
      * 
@@ -53,9 +67,12 @@ implements ProducerOperations {
 
         Option maxamount = new Option("m","max",false, 
             "Max amount of the resource");
+        Option id = new Option("i","id",true, 
+            "Name to use for the game");
 
         Options options = new Options();
         options.addOption(maxamount); 
+        options.addOption(id); 
 
         return options;
     }
@@ -97,10 +114,11 @@ implements ProducerOperations {
             producer.myprod = tie._this(cm.orb);
 
             /* Get coordinator */
-            producer.coordinator = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
+            Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
 
             /* Login */
-            producer.coordinator.loginProducer(producer.myprod);
+            String id = cmd.hasOption('i') ? cmd.getOptionValue('i') : "auto-set";
+            producer.joinCoordinator(coord,id);
 
             /* Run server */
             cm.runORB();

@@ -12,6 +12,7 @@ import Gimme.CoordinatorHelper;
 import Gimme.ConsumerOperations;
 import Gimme.ConsumerPOATie;
 import Gimme.ConsumerHelper;
+import Gimme.Registration;
 import Gimme.GameInfos;
 import Gimme.Agent;
 import java.util.concurrent.locks.*;
@@ -22,9 +23,11 @@ implements ConsumerOperations {
 
     private Consumer mycons = null;
 
+    /* My game infos */
     private HashMap<String,Integer> resources;
     private HashMap<String,ArrayList<Producer>> view;
 
+    /* Other game actors */
     private Coordinator coordinator = null;
     Producer[] prods;
     Consumer[] cons;
@@ -130,7 +133,7 @@ implements ConsumerOperations {
      * @return true if the coordinator has been joined 
      *         succesfully, false otherwise
      */
-    public boolean joinCoordinator(Coordinator c){
+    public boolean joinCoordinator(Coordinator c, String id){
 
         GameInfos gi = c.getGameInfos();
 
@@ -145,8 +148,16 @@ implements ConsumerOperations {
         if (gi.running) return false;
        
         /* Login */ 
-        if (c.loginConsumer(mycons) != Common.SUCCESS) return false;
+        logmsg(id,0);
+        Registration r = c.loginConsumer(mycons,id);
+        if (r.logged == false){
+            logmsg(r.msg,2);
+            return false;
+        }
+        
+        logmsg("Login as "+r.id+": "+r.msg,1);
         coordinator = c;
+        gameID = r.id;
         return true;
     }
 
@@ -181,9 +192,12 @@ implements ConsumerOperations {
 
         Option human = new Option("h","human",false, 
             "Activate user interaction (for games played in turns)");
+        Option id = new Option("i","id",true, 
+            "Name to use for the game");
 
         Options options = new Options();
         options.addOption(human); 
+        options.addOption(id); 
 
         return options;
     }
@@ -230,9 +244,9 @@ implements ConsumerOperations {
 
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
-           
-            consumer.logmsg(argz[0]+" "+argz[1],0); 
-            if (consumer.joinCoordinator(coord) == false) {
+          
+            String id = cmd.hasOption('i') ? cmd.getOptionValue('i') : "auto-set";
+            if (consumer.joinCoordinator(coord,id) == false) {
                 System.out.println("Impossible to join server") ;
                 printUsage(options, 1);
             }

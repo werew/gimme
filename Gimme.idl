@@ -12,10 +12,16 @@ module Gimme
     long amount;
   } ;
 
+  struct Registration
+  {
+    boolean logged;
+    string id;
+    string msg;
+  } ;
+    
   
   interface Agent
   {
-  // TODO insert common methods here
     Resource getResource(in Resource request) ;
     void logmsg(in string msg, in long type);
   } ; 
@@ -28,8 +34,9 @@ module Gimme
 
   interface Consumer : Agent
   {
-  typedef sequence<Producer> TabProd;
-  typedef sequence<Consumer> TabCons;
+    typedef sequence<Producer> TabProd;
+    typedef sequence<Consumer> TabCons;
+
     oneway void start() ;
     boolean playTurn() ;
     void feed(in TabProd p, in TabCons c) ;
@@ -38,8 +45,8 @@ module Gimme
 
   interface Coordinator
   {
-    long loginConsumer(in Consumer c) ;
-    long loginProducer(in Producer p) ;
+    Registration loginConsumer(in Consumer c, in string id) ;
+    Registration loginProducer(in Producer p, in string id) ;
     GameInfos getGameInfos();
   } ;
 

@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.*;
 import org.omg.CosNaming.*;
 import Gimme.Consumer;
+import Gimme.Registration;
 import Gimme.Producer;
 import Gimme.Coordinator;
 import Gimme.CoordinatorPOA;
@@ -15,8 +16,8 @@ import org.apache.commons.cli.*;
 public class CoordinatorImpl extends CoordinatorPOA {
 
     /* Logged consumers and producers */
-    private Consumer[] consumers; 
-    private Producer[] producers;
+    HashMap<String,Producer> producers;
+    HashMap<String,Consumer> consumers;
     private int ncons = 0;
     private int nprod = 0;
 
@@ -26,22 +27,17 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     /* Some game values */
     final int coutdown = 5;
+    final String fullmsg  = "Game is full";
     final String readymsg = "Game will start in 5 seconds!";
     final String startmsg = "Game has started!";
+    final String usedid   = "Id is already in use";
 
     public CoordinatorImpl(int maxprod, int maxcons){
-        resetConsumers(maxcons); resetProducers(maxprod);
+        ncons = maxcons; nprod = maxprod;
+        consumers = new HashMap<String,Consumer>();
+        producers = new HashMap<String,Producer>();
     }
 
-    public void resetProducers(int np){
-        nprod = 0; 
-        producers = new Producer[np];
-    }
-
-    public void resetConsumers(int nc){
-        ncons = 0;
-        consumers = new Consumer[nc];
-    }
 
     public GameInfos getGameInfos(){
         GameInfos gi = new GameInfos();
@@ -50,63 +46,88 @@ public class CoordinatorImpl extends CoordinatorPOA {
         return gi;
     }
 
-    public int loginConsumer(Consumer c){ 
+    public Registration loginConsumer(Consumer c, String id){ 
         System.out.println("Login consumer");
 
         /* Check if game is full */
-        if (ncons == consumers.length) return Common.FULL;
-        consumers[ncons++] = c;
+        if (consumers.size() == ncons) {
+            return new Registration(false,id,fullmsg);
+        }
 
+        /* Check id */
+        if (id.equals("auto-set")){
+            id = "Consumer-"+consumers.size();
+        } else if (consumers.containsKey(id)){
+            return new Registration(false,id,usedid);
+        }
+
+        /* Successfully login */
+        consumers.put(id,c);
         if (testStartGame()) launchGame();
 
-        return Common.SUCCESS; 
+        return new Registration(true,id,"Success");
     }
 
-    public int loginProducer(Producer p){ 
+    public Registration loginProducer(Producer p, String id){ 
         System.out.println("Login producer");
 
         /* Check if game is full */
-        if (nprod == producers.length) return Common.FULL;
-        producers[nprod++] = p;
+        if (producers.size() == nprod) {
+            return new Registration(false,id,fullmsg);
+        }
 
+        /* Check id */
+        if (id == "auto-set"){
+            id = "Producer-"+producers.size();
+        } else if (producers.containsKey(id)){
+            return new Registration(false,id,usedid);
+        }
+
+        /* Successfully login */
+        producers.put(id,p);
         if (testStartGame()) launchGame();
 
-        return Common.SUCCESS; 
+        return new Registration(true,id,"Success");
+
     }
 
 
     private boolean testStartGame(){
         return ( running == false && 
-                 ncons   == consumers.length &&
-                 nprod   == producers.length
+                 ncons   == consumers.size() &&
+                 nprod   == producers.size()
                );
     }
 
+
     private void launchGame(){
         System.out.println("Launching Game");
-        broadcastMsg(producers,readymsg,0);
-        broadcastMsg(consumers,readymsg,0);
+        broadcastMsg(producers.values(),readymsg,0);
+        broadcastMsg(consumers.values(),readymsg,0);
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
-                broadcastMsg(producers,startmsg,0);
-                broadcastMsg(consumers,startmsg,0);
+                broadcastMsg(producers.values(),startmsg,0);
+                broadcastMsg(consumers.values(),startmsg,0);
 
                 /* Send list of producers and opponents to the consumers */
-                Consumer[] opponents = new Consumer[consumers.length-1];
-                for (int i = 0; i < consumers.length; i++){
-                    for (int j = 0; j < opponents.length; j++){
-                        opponents[j] = consumers[ j < i ? j : j+1];
+                Producer[] array_producers = producers.values().toArray(new Producer[producers.size()]);
+                Consumer[] array_consumers = consumers.values().toArray(new Consumer[consumers.size()]);
+                Consumer[] array_opponents = new Consumer[consumers.size()-1];
+
+                for (int i = 0; i < array_consumers.length; i++){
+                    for (int j = 0; j < array_opponents.length; j++){
+                        array_opponents[j] = array_consumers[ j < i ? j : j+1];
                     }
-                    consumers[i].feed(producers,opponents);
+                    array_consumers[i].feed(array_producers,array_opponents);
                 }
 
 
-                for (Consumer c : consumers) c.start();
+                for (Consumer c : array_consumers) c.start();
 
                 while (true) {
-                    for (Consumer c : consumers) c.playTurn();
+                    for (Consumer c : array_consumers) c.playTurn();
                 }
                     
                 //for (Producer p : producers);// p.start();
@@ -118,7 +139,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         
     }
 
-    private void broadcastMsg(Agent[] agents, String msg, int type){
+    private void broadcastMsg(Collection<? extends Agent> agents, String msg, int type){
         for (Agent a : agents) a.logmsg(msg,type);
     }
 
@@ -170,10 +191,10 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
             /* Init coodinator */
             if (cmd.hasOption('t')) coord.taketurns = true;
-            if (cmd.hasOption('c')) coord.resetConsumers(
-                Integer.parseInt(cmd.getOptionValue('c')));
-            if (cmd.hasOption('p')) coord.resetProducers(
-                Integer.parseInt(cmd.getOptionValue('p')));
+            if (cmd.hasOption('c')) 
+                coord.ncons = Integer.parseInt(cmd.getOptionValue('c'));
+            if (cmd.hasOption('p'))
+                coord.nprod = Integer.parseInt(cmd.getOptionValue('p'));
 
             /* Init corba service */
             CorbaManager cm = new CorbaManager(argz[0], argz[1]);

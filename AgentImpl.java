@@ -33,14 +33,17 @@ public abstract class AgentImpl extends AgentPOA {
         date = new Date();
     }
 
-    protected void addTransaction(String to, Resource r){
+    protected void addTransaction(int type, String from, Resource content){
         Transaction t = new Transaction();
-        t.timestamp = date.getTime();
-        t.id = gameID+"-"+transactions.size();
-        t.from = gameID;
-        t.to = to;
-        t.what = r;
-        transactions.put(t.id,t);
+        t.type     = type;
+        t.from     = from;
+        t.content  = content;
+
+        synchronized (this){
+            t.timestamp = date.getTime();
+            t.id = gameID+"-"+transactions.size();
+            transactions.put(t.id,t);
+        }
     }
 
 

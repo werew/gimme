@@ -19,13 +19,16 @@ module Gimme
     string msg;
   } ;
 
-  struct Transaction 
+
+  /* Transactions are always stored by the receiver */
+  struct Transaction
   {
     string id;
     long long timestamp;
-    string from;
-    string to;
-    Resource what;
+    long type;        // Request | Query | Production
+    string from;     
+    Resource content; // If type = Query, this is the answer
+                      // For failed requests the amount is 0
   } ;
     
   

@@ -8,8 +8,8 @@ public class Common {
 
 
     /* Transaction types */
-    public static final int REQUEST;
-    public static final int QUERY;
-    public static final int PRODUCTION;
+    public static final int REQUEST = 0;
+    public static final int QUERY = 1;
+    public static final int PRODUCTION = 2;
 
 }

@@ -18,6 +18,15 @@ module Gimme
     string id;
     string msg;
   } ;
+
+  struct Transaction 
+  {
+    string id;
+    long long timestamp;
+    string from;
+    string to;
+    Resource what;
+  } ;
     
   
   interface Agent

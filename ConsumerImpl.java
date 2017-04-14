@@ -118,8 +118,10 @@ implements ConsumerOperations {
 
     public void updateConsumers(Consumer[] consumers, String[] ids){
         cons  = new HashMap<String,Consumer>();    
-        for (int i = 0; i < consumers.length; i++) 
+        for (int i = 0; i < consumers.length; i++){
+            if (ids[i].equals(gameID)) continue;
             cons.put(ids[i],consumers[i]);
+        }
     }
 
     public void updateProducers(Producer[] producers, String[] ids){

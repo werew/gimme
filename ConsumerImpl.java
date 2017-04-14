@@ -68,8 +68,8 @@ implements ConsumerOperations {
 
     private void teststrategy(){
         while (true) {
-            for (Producer p : prods.values()){
-                Resource r = queryResource_wr(p);
+            for (String id : prods.keySet()){
+                Resource r = queryResource_wr(id);
                 logmsg(r.type+" "+r.amount,0);
                 try{Thread.sleep(1000);
                 } catch (Exception e) {}
@@ -79,16 +79,22 @@ implements ConsumerOperations {
 
     /* Wrappers */
 
-    private Resource getResource_wr(Agent a, Resource request){
+    private Resource getResource_wr(String id, Resource request){
         turnActionPrologue();
+        Agent a = null;
+        if (prods.containsKey(id)) a = prods.get(id);
+        else a = cons.get(id);
         Resource r = a.getResource(request);
+        addTransaction(Common.REQUEST,id,r); 
         turnActionEpilogue();
         return r;
     }
 
-    private Resource queryResource_wr(Producer p){
+    private Resource queryResource_wr(String id){
         turnActionPrologue();
+        Producer p = prods.get(id);
         Resource r = p.queryResource();
+        addTransaction(Common.QUERY,id,r); 
         turnActionEpilogue();
         return r;
     }

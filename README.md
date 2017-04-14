@@ -3,6 +3,13 @@
 TODO
 - Build a class for writing logs
 - Use human-readable ids
+- Production of resources
+- Get resources list from coordinator
+- Implement human cli
+- Strategies
+- Winning conditions
+- Store transactions
+- Observe transactions
 
 NOTES
 - Explaining choice to use tie model to be able to use inheritance

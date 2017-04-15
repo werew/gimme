@@ -178,7 +178,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     public static void main(String args[]) {
 
-        CoordinatorImpl coord = new CoordinatorImpl(1,1);
+        CoordinatorImpl coord = new CoordinatorImpl(2,2);
         Options options = getOptions();
         CommandLine cmd = null;
         String[] argz = null;

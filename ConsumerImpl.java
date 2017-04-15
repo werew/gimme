@@ -167,6 +167,22 @@ implements ConsumerOperations {
         }
     } 
 
+    private void startObservation(){
+        turnActionPrologue();
+        for (Consumer c : cons.values()){
+            c.addObserver(gameID);
+        }
+        turnActionEpilogue();
+    }
+
+    private void stopObservation(){
+        turnActionPrologue();
+        for (Consumer c : cons.values()){
+            c.removeObserver(gameID);
+        }
+        turnActionEpilogue();
+    }
+
 
 
     /**

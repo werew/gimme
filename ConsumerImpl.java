@@ -26,6 +26,7 @@ implements ConsumerOperations {
     /* My game infos */
     private HashMap<String,Integer> resources;
     private HashMap<String,ArrayList<Producer>> view;
+    private HashSet<String> observers;
 
     /* Other game actors */
     private Coordinator coordinator = null;
@@ -48,6 +49,7 @@ implements ConsumerOperations {
         if (human) this.setHuman();
         resources = new HashMap<String,Integer>();	
         view = new HashMap<String,ArrayList<Producer>>();
+        observers = new HashSet<String>();
     }
 
 
@@ -239,6 +241,14 @@ implements ConsumerOperations {
         prods = new HashMap<String,Producer>();    
         for (int i = 0; i < producers.length; i++) 
             prods.put(ids[i],producers[i]);
+    }
+
+    public void addObserver(String id){
+       observers.add(id); 
+    }
+
+    public void removeObserver(String id){
+       observers.remove(id); 
     }
 
 

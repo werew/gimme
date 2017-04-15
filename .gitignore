@@ -19,3 +19,6 @@ Gimme/
 # git swap files 
 *.swp
 *.swo
+
+# nfs files
+*.nfs*

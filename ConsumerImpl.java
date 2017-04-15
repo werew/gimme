@@ -167,6 +167,12 @@ implements ConsumerOperations {
         }
     } 
 
+
+    private void keepState(){
+        turnActionPrologue();
+        turnActionEpilogue();
+    }
+
     private void startObservation(){
         turnActionPrologue();
         for (Consumer c : cons.values()){

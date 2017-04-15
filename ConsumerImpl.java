@@ -227,7 +227,9 @@ implements ConsumerOperations {
         if (prods.containsKey(id)) a = prods.get(id);
         else a = cons.get(id);
         Resource r = a.getResource(request);
-        addTransaction(Common.REQUEST,id,r); 
+        Transaction t = addTransaction(Common.REQUEST,id,r); 
+        for (String c : observers) 
+            cons.get(c).seeTransaction(gameID,t);
         turnActionEpilogue();
         return r;
     }
@@ -237,7 +239,9 @@ implements ConsumerOperations {
         turnActionPrologue();
         Producer p = prods.get(id);
         Resource r = p.queryResource();
-        addTransaction(Common.QUERY,id,r); 
+        Transaction t = addTransaction(Common.QUERY,id,r);
+        for (String c : observers) 
+            cons.get(c).seeTransaction(gameID,t);
         turnActionEpilogue();
         return r;
     }
@@ -282,21 +286,26 @@ implements ConsumerOperations {
         cons  = new HashMap<String,Consumer>();    
         for (int i = 0; i < consumers.length; i++){
             if (ids[i].equals(gameID)) continue;
+            logmsg("Put consumer "+ids[i],0);
             cons.put(ids[i],consumers[i]);
         }
     }
 
     public void updateProducers(Producer[] producers, String[] ids){
         prods = new HashMap<String,Producer>();    
-        for (int i = 0; i < producers.length; i++) 
+        for (int i = 0; i < producers.length; i++){
+            logmsg("Put producer "+ids[i],0);
             prods.put(ids[i],producers[i]);
+        }
     }
 
     public void addObserver(String id){
+       logmsg("Adding "+id,0);
        observers.add(id); 
     }
 
     public void removeObserver(String id){
+       logmsg("Removing "+id,0);
        observers.remove(id); 
     }
 
@@ -312,7 +321,8 @@ implements ConsumerOperations {
                 }
                 break;
             case Common.QUERY:
-               addToView(t.content.type,t.from); 
+                addToView(t.content.type,t.from); 
+                logmsg("Saw query: "+who+" got "+t.content.type+" from "+t.from,0);
                 break;
         }
     }

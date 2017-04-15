@@ -117,10 +117,10 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 String[] prods_ids = new String[producers.size()];
                 producers.keySet().toArray(prods_ids);
 
-                Consumer[] list_opponents = new Consumer[consumers.size()-1];
+                Consumer[] list_opponents = new Consumer[consumers.size()];
                 consumers.values().toArray(list_opponents);
-                String[] cons_ids = new String[consumers.size()-1];
-                producers.keySet().toArray(cons_ids);
+                String[] cons_ids = new String[consumers.size()];
+                consumers.keySet().toArray(cons_ids);
 
                 for (Consumer c : consumers.values()){
                     c.updateProducers(list_producers,prods_ids);

@@ -32,7 +32,6 @@ implements ConsumerOperations {
     private HashMap<String,Consumer> cons;
     private HashMap<String,Producer> prods;
 
-
     /* To manage turns */
     private boolean taketurns = false;
     private boolean human = false;
@@ -41,80 +40,10 @@ implements ConsumerOperations {
     private Condition turnAvailable;
     private Condition turnFinished;
 
-    private void turnActionPrologue(){
-        try {
-            turnLock.lock();
-            while (isMyTurn == false) turnAvailable.await();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    private void turnActionEpilogue(){
-        try {
-            isMyTurn = false; 
-            turnFinished.signal(); 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally { // Ensure unlock
-            turnLock.unlock();
-        }
-    }
-
-
-    public void start(){
-        teststrategy();
-    }
-
-    private void teststrategy(){
-        while (true) {
-            for (String id : prods.keySet()){
-                Resource r = queryResource_wr(id);
-                logmsg(r.type+" "+r.amount,0);
-                try{Thread.sleep(1000);
-                } catch (Exception e) {}
-            }
-        }
-    } 
-
-    /* Wrappers */
-
-    private Resource getResource_wr(String id, Resource request){
-        turnActionPrologue();
-        Agent a = null;
-        if (prods.containsKey(id)) a = prods.get(id);
-        else a = cons.get(id);
-        Resource r = a.getResource(request);
-        addTransaction(Common.REQUEST,id,r); 
-        turnActionEpilogue();
-        return r;
-    }
-
-    private Resource queryResource_wr(String id){
-        turnActionPrologue();
-        Producer p = prods.get(id);
-        Resource r = p.queryResource();
-        addTransaction(Common.QUERY,id,r); 
-        turnActionEpilogue();
-        return r;
-    }
-
-    public boolean playTurn(){
-        try {
-            turnLock.lock();
-            while (isMyTurn == true) turnFinished.await();
-            isMyTurn = true;
-            turnAvailable.signal();
-        } catch (Exception e){
-            e.printStackTrace();
-        } finally { // Ensure unlock
-            turnLock.unlock();
-        }
-
-        return true;
-    }
-        
-
+    /**
+     * @brief ctor
+     */
     public ConsumerImpl(boolean human){
         if (human) this.setHuman();
         resources = new HashMap<String,Integer>();	
@@ -122,23 +51,6 @@ implements ConsumerOperations {
     }
 
 
-    public void updateConsumers(Consumer[] consumers, String[] ids){
-        cons  = new HashMap<String,Consumer>();    
-        for (int i = 0; i < consumers.length; i++){
-            if (ids[i].equals(gameID)) continue;
-            cons.put(ids[i],consumers[i]);
-        }
-    }
-
-    public void updateProducers(Producer[] producers, String[] ids){
-        prods = new HashMap<String,Producer>();    
-        for (int i = 0; i < producers.length; i++) 
-            prods.put(ids[i],producers[i]);
-    }
-
-    public Resource getResource(Resource request){
-        return new Resource("Test",0);
-    }
 
     /**
      * @brief Try to join a coordinator
@@ -146,6 +58,7 @@ implements ConsumerOperations {
      * Try to join a coordinator which is proposing a game
      * which parameters match the one of the consumer.
      * @param c Coordinator to join 
+     * @param id Identifier desired or "auto-set"
      * @return true if the coordinator has been joined 
      *         succesfully, false otherwise
      */
@@ -178,7 +91,12 @@ implements ConsumerOperations {
     }
 
 
-
+    /**
+     * @brief prepare for a game in turns
+     *
+     * Initialize the object so that it will 
+     * play a game in turns
+     */
     public void setTurnGame(){
         taketurns = true;
         isMyTurn = false;
@@ -187,11 +105,142 @@ implements ConsumerOperations {
         turnFinished = turnLock.newCondition();
     }
 
-    /* @brief Turn on human interaction */ 
+    /**
+     * @brief prepare for a game with human interaction 
+     *
+     * Initialize the object so that it will 
+     * play a game in turns with human interaction
+     */
     public void setHuman(){
         setTurnGame();
         human = true;
     }
+
+
+    /**
+     * @brief prologue of a turn
+     *
+     * If taketurns == true this function should be called 
+     * immediatly before the execution of any transaction
+     */
+    private void turnActionPrologue(){
+        if (taketurns == false) return;
+        try {
+            turnLock.lock();
+            while (isMyTurn == false) turnAvailable.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * @brief epilogue of a turn
+     *
+     * If taketurns == true this function should be called 
+     * immediatly after the execution of any transaction
+     */
+    private void turnActionEpilogue(){
+        if (taketurns == false) return;
+        try {
+            isMyTurn = false; 
+            turnFinished.signal(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally { // Ensure unlock
+            turnLock.unlock();
+        }
+    }
+
+
+    /* XXX test function */
+    private void teststrategy(){
+        while (true) {
+            for (String id : prods.keySet()){
+                Resource r = queryResource_wr(id);
+                logmsg(r.type+" "+r.amount,0);
+                try{Thread.sleep(1000);
+                } catch (Exception e) {}
+            }
+        }
+    } 
+
+
+
+    /**
+     * Wrappers: this wrappers add some more actions to
+     * the simple execution of a transaction (e.g. turn control,
+     * transaction storage, etc...). When launching a transaction
+     * always use a wrapper of the original IDL method's interface.
+     */
+
+    /* @brief getResource's wrapper */
+    private Resource getResource_wr(String id, Resource request){
+        turnActionPrologue();
+        Agent a = null;
+        if (prods.containsKey(id)) a = prods.get(id);
+        else a = cons.get(id);
+        Resource r = a.getResource(request);
+        addTransaction(Common.REQUEST,id,r); 
+        turnActionEpilogue();
+        return r;
+    }
+
+    /* @brief queryResource's wrapper */
+    private Resource queryResource_wr(String id){
+        turnActionPrologue();
+        Producer p = prods.get(id);
+        Resource r = p.queryResource();
+        addTransaction(Common.QUERY,id,r); 
+        turnActionEpilogue();
+        return r;
+    }
+
+
+    /*************** Consumer IDL's interface *****************
+     * Interface: the following function implements 
+     * methods of the IDL's interface Consumer 
+     */
+
+
+    public Resource getResource(Resource request){
+        return new Resource("Test",0);
+    }
+
+    public void start(){
+        teststrategy();
+    }
+
+    public boolean playTurn(){
+        try {
+            turnLock.lock();
+            while (isMyTurn == true) turnFinished.await();
+            isMyTurn = true;
+            turnAvailable.signal();
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally { // Ensure unlock
+            turnLock.unlock();
+        }
+
+        return true;
+    }
+        
+
+    public void updateConsumers(Consumer[] consumers, String[] ids){
+        cons  = new HashMap<String,Consumer>();    
+        for (int i = 0; i < consumers.length; i++){
+            if (ids[i].equals(gameID)) continue;
+            cons.put(ids[i],consumers[i]);
+        }
+    }
+
+    public void updateProducers(Producer[] producers, String[] ids){
+        prods = new HashMap<String,Producer>();    
+        for (int i = 0; i < producers.length; i++) 
+            prods.put(ids[i],producers[i]);
+    }
+
 
    
 

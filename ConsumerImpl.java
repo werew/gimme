@@ -28,7 +28,8 @@ implements ConsumerOperations {
     /* My game infos */
     private HashMap<String,Integer> resources;
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
-    private HashSet<String> observers;
+    private ConcurrentSkipListSet<String> observers;
+    int strategy = 0;
 
     /* Other game actors */
     private Coordinator coordinator = null;
@@ -47,11 +48,12 @@ implements ConsumerOperations {
     /**
      * @brief ctor
      */
-    public ConsumerImpl(boolean human){
+    public ConsumerImpl(boolean human,int strategy){
         if (human) this.setHuman();
         resources = new HashMap<String,Integer>();	
         view = new ConcurrentHashMap<String,ConcurrentSkipListSet<String>>();
-        observers = new HashSet<String>();
+        observers = new ConcurrentSkipListSet<String>();
+        this.strategy = strategy;
     }
 
 
@@ -318,10 +320,13 @@ implements ConsumerOperations {
             "Activate user interaction (for games played in turns)");
         Option id = new Option("i","id",true, 
             "Name to use for the game");
+        Option strategy = new Option("s","strategy",true, 
+            "Which strategy should use the player");
 
         Options options = new Options();
         options.addOption(human); 
         options.addOption(id); 
+        options.addOption(strategy); 
 
         return options;
     }
@@ -357,7 +362,9 @@ implements ConsumerOperations {
             if (argz.length < 2) throw new ParseException("Argument missing");
 
             /* Create and init consumer */
-            ConsumerImpl consumer = new ConsumerImpl(cmd.hasOption('h'));
+            int strategy = cmd.hasOption('s') ? 
+                Integer.parseInt(cmd.getOptionValue('s')) : 0;
+            ConsumerImpl consumer = new ConsumerImpl(cmd.hasOption('h'), strategy);
 
             /* Create a server */
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);

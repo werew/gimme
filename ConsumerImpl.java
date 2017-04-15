@@ -1,6 +1,7 @@
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.io.*;
 import java.io.IOException;
 import org.omg.CosNaming.*;
@@ -15,6 +16,7 @@ import Gimme.ConsumerHelper;
 import Gimme.Registration;
 import Gimme.GameInfos;
 import Gimme.Agent;
+import Gimme.Transaction;
 import java.util.concurrent.locks.*;
 import org.apache.commons.cli.*;
 
@@ -25,7 +27,7 @@ implements ConsumerOperations {
 
     /* My game infos */
     private HashMap<String,Integer> resources;
-    private HashMap<String,ArrayList<Producer>> view;
+    private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private HashSet<String> observers;
 
     /* Other game actors */
@@ -48,7 +50,7 @@ implements ConsumerOperations {
     public ConsumerImpl(boolean human){
         if (human) this.setHuman();
         resources = new HashMap<String,Integer>();	
-        view = new HashMap<String,ArrayList<Producer>>();
+        view = new ConcurrentHashMap<String,ConcurrentSkipListSet<String>>();
         observers = new HashSet<String>();
     }
 
@@ -189,6 +191,16 @@ implements ConsumerOperations {
         turnActionEpilogue();
     }
 
+    private void addToView(String product, String producer){
+        ConcurrentSkipListSet<String> prod_set = null;
+        if (view.containsKey(product) == false){
+            prod_set = new ConcurrentSkipListSet<String>();
+            view.put(product,prod_set);
+        } else {
+            prod_set = view.get(product);
+        }
+        prod_set.add(producer);
+    }
 
 
     /**
@@ -274,6 +286,21 @@ implements ConsumerOperations {
     }
 
 
+    public void seeTransaction(String who, Transaction t){
+        switch (t.type) {
+            case Common.REQUEST:
+                if (cons.containsKey(t.from)){
+                    // TODO Stolen
+                    return;
+                } else if (t.content.amount < 0){
+                   addToView(t.content.type,t.from); 
+                }
+                break;
+            case Common.QUERY:
+               addToView(t.content.type,t.from); 
+                break;
+        }
+    }
    
 
     /**

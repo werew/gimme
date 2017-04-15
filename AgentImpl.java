@@ -33,7 +33,7 @@ public abstract class AgentImpl extends AgentPOA {
         date = new Date();
     }
 
-    protected void addTransaction(int type, String from, Resource content){
+    protected Transaction addTransaction(int type, String from, Resource content){
         Transaction t = new Transaction();
         t.type     = type;
         t.from     = from;
@@ -44,6 +44,7 @@ public abstract class AgentImpl extends AgentPOA {
             t.id = gameID+"-"+transactions.size();
             transactions.put(t.id,t);
         }
+        return t;
     }
 
 

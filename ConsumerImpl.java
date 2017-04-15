@@ -160,7 +160,15 @@ implements ConsumerOperations {
 
 
     /* XXX test function */
-    private void teststrategy(){
+    private void teststrategy0(){
+        while (true) {
+            startObservation();
+            for (int i = 0; i < 3; i++) keepState();
+            stopObservation();
+        }
+    } 
+
+    private void teststrategy1(){
         while (true) {
             for (String id : prods.keySet()){
                 Resource r = queryResource_wr(id);
@@ -246,7 +254,12 @@ implements ConsumerOperations {
     }
 
     public void start(){
-        teststrategy();
+        switch (strategy) {
+            case 0: teststrategy0();
+                break;
+            case 1: teststrategy1();
+                break;
+        }
     }
 
     public boolean playTurn(){

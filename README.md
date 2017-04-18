@@ -1,15 +1,15 @@
 # gimme
 
 TODO
-- Build a class for writing logs
+- Build a class for writing logs 
 - Use human-readable ids (DONE)
-- Production of resources
-- Get resources list from coordinator
-- Implement human cli
-- Strategies
-- Winning conditions
-- Store transactions
-- Observe transactions
+- Production of resources (!!!!)
+- Get resources list from coordinator (!!!!)
+- Implement human cli (!)
+- Strategies 
+- Winning conditions (!!)
+- Store transactions (TODO for production)
+- Observe transactions (TODO handle stolen)
 - Clean imports
 
 NOTES

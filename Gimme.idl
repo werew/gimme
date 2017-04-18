@@ -52,11 +52,14 @@ module Gimme
 
     oneway void start() ;
     boolean playTurn() ;
+
     void addObserver(in string id);
-    void seeTransaction(in string who, in Transaction t);
     void removeObserver(in string id);
+    void seeTransaction(in string who, in Transaction t);
+
     void updateProducers(in TabProd producers, in TabIDs ids) ;
     void updateConsumers(in TabCons consumers, in TabIDs ids) ;
+    void setResources(in TabIDs resources);
   } ;
 
 

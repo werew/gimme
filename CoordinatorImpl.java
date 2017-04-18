@@ -133,9 +133,13 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 String[] cons_ids = new String[consumers.size()];
                 consumers.keySet().toArray(cons_ids);
 
+                String[] list_resources = new String[resources.size()];
+                resources.keySet().toArray(list_resources);
+
                 for (Consumer c : consumers.values()){
                     c.updateProducers(list_producers,prods_ids);
                     c.updateConsumers(list_opponents,cons_ids);
+                    c.setResources(list_resources);
                 }
                 
                 for (Consumer c : consumers.values()) c.start();

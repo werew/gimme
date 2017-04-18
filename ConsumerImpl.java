@@ -266,6 +266,13 @@ implements ConsumerOperations {
         }
     }
 
+    public void setResources(String[] resources){
+        for (String r : resources){
+            ConcurrentSkipListSet<String> prod_set = new ConcurrentSkipListSet<String>();
+            view.put(r,prod_set);
+        }
+    }
+
     public boolean playTurn(){
         try {
             turnLock.lock();

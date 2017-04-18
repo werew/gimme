@@ -43,7 +43,7 @@ implements ProducerOperations {
 
     public boolean joinCoordinator(Coordinator c, String id){
 
-        Registration r = c.loginProducer(myprod,id);
+        Registration r = c.loginProducer(myprod,id,resource.type);
         if (r.logged == false){
             logmsg(r.msg,2);
             return false;

@@ -63,7 +63,7 @@ module Gimme
   interface Coordinator
   {
     Registration loginConsumer(in Consumer c, in string id) ;
-    Registration loginProducer(in Producer p, in string id) ;
+    Registration loginProducer(in Producer p, in string id, in string res) ;
     GameInfos getGameInfos();
   } ;
 

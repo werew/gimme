@@ -18,6 +18,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
     /* Logged consumers and producers */
     HashMap<String,Producer> producers;
     HashMap<String,Consumer> consumers;
+    HashMap<String,ArrayList<Producer>> resources;
     private int ncons = 0;
     private int nprod = 0;
 
@@ -36,6 +37,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         ncons = maxcons; nprod = maxprod;
         consumers = new HashMap<String,Consumer>();
         producers = new HashMap<String,Producer>();
+        resources = new HashMap<String,ArrayList<Producer>>();
     }
 
 
@@ -68,7 +70,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         return new Registration(true,id,"Success");
     }
 
-    public Registration loginProducer(Producer p, String id){ 
+    public Registration loginProducer(Producer p, String id, String resource){ 
         System.out.println("Login producer");
 
         /* Check if game is full */
@@ -81,6 +83,15 @@ public class CoordinatorImpl extends CoordinatorPOA {
             id = "Producer-"+producers.size();
         } else if (producers.containsKey(id)){
             return new Registration(false,id,usedid);
+        }
+
+        /* Add resource */
+        if (resources.containsKey(resource)){
+            resources.get(resource).add(p);
+        } else {
+            ArrayList<Producer> ap = new ArrayList<Producer>();
+            ap.add(p);
+            resources.put(resource,ap);
         }
 
         /* Successfully login */

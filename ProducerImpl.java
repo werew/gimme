@@ -20,9 +20,18 @@ implements ProducerOperations {
     Coordinator coordinator;
     Resource resource;
 
+    boolean taketurns = false;
+    int frequency = 1;
+    float relative_prod = 0;
+    int guaranteed_prod = 0;
+    int total_produced = 0;
+    int capacity = -1;
+    int max_total = -1;
+
     public ProducerImpl(String type){
         this(type,0);
     }
+
     public ProducerImpl(String type, int amount){
         resource = new Resource(type,amount);
     }
@@ -65,14 +74,33 @@ implements ProducerOperations {
      */
     private static Options getOptions(){
 
-        Option maxamount = new Option("m","max",false, 
-            "Max amount of the resource");
-        Option id = new Option("i","id",true, 
-            "Name to use for the game");
+        Option id = new Option("i","id",true, "Name to use for the game");
+        Option taketurns = new Option("t","taketurns",false, 
+            "Use this option to join games played in turns");
+        Option start = new Option("s","start",true, 
+            "Initial amount of product available (default is 0)");
+        Option freq = new Option("f","frequency",true, 
+            "Frequency of the production steps in milliseconds, "+
+            "or in turns if -t has been set");
+        Option relprod = new Option("r","relative-production",true, 
+            "Produce a relative amount (rounded up) at each production step "+
+            "(e.g. -r 1.5 will add 50% of the resource at each production step)");
+        Option garprod  = new Option("g","guaranteed-production",true, 
+            "Add a fixed amount at the resource stock at each production step");
+        Option capacity = new Option("c","capacity",false, 
+            "Max amount of the resource in stock");
+        Option maxtotalprod = new Option("m","limit",true, 
+            "Max total amount of resources produced (default is infinity)");
 
         Options options = new Options();
-        options.addOption(maxamount); 
         options.addOption(id); 
+        options.addOption(taketurns); 
+        options.addOption(start); 
+        options.addOption(freq); 
+        options.addOption(relprod); 
+        options.addOption(garprod); 
+        options.addOption(maxtotalprod); 
+        options.addOption(capacity); 
 
         return options;
     }
@@ -109,16 +137,24 @@ implements ProducerOperations {
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
 
             /* Create corba object */
-            ProducerImpl producer = new ProducerImpl(argz[2]) ;
-            ProducerPOATie tie = new ProducerPOATie(producer, cm.rootPOA);
-            producer.myprod = tie._this(cm.orb);
+            ProducerImpl p = new ProducerImpl(argz[2]) ;
+            ProducerPOATie tie = new ProducerPOATie(p, cm.rootPOA);
+            p.myprod = tie._this(cm.orb);
+
+            /* Get options */ 
+            if (cmd.hasOption('f')) p.frequency = Integer.parseInt(cmd.getOptionValue('f'));
+            if (cmd.hasOption('m')) p.max_total = Integer.parseInt(cmd.getOptionValue('m'));
+            if (cmd.hasOption('r')) p.relative_prod = Float.parseFloat(cmd.getOptionValue('r'));
+            if (cmd.hasOption('g')) p.guaranteed_prod = Integer.parseInt(cmd.getOptionValue('g'));
+            if (cmd.hasOption('c')) p.capacity = Integer.parseInt(cmd.getOptionValue('c'));
+            p.taketurns = cmd.hasOption('t');
 
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));
 
             /* Login */
             String id = cmd.hasOption('i') ? cmd.getOptionValue('i') : "auto-set";
-            producer.joinCoordinator(coord,id);
+            p.joinCoordinator(coord,id);
 
             /* Run server */
             cm.runORB();

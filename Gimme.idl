@@ -36,6 +36,7 @@ module Gimme
   {
     Resource getResource(in Resource request) ;
     void logmsg(in string msg, in long type);
+    boolean playTurn() ;
   } ; 
 
 
@@ -51,7 +52,6 @@ module Gimme
     typedef sequence<string> TabIDs;
 
     oneway void start() ;
-    boolean playTurn() ;
 
     void addObserver(in string id);
     void removeObserver(in string id);

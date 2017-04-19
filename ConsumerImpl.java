@@ -17,7 +17,6 @@ import Gimme.Registration;
 import Gimme.GameInfos;
 import Gimme.Agent;
 import Gimme.Transaction;
-import java.util.concurrent.locks.*;
 import org.apache.commons.cli.*;
 
 public class ConsumerImpl extends AgentImpl 
@@ -30,19 +29,13 @@ implements ConsumerOperations {
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private ConcurrentSkipListSet<String> observers;
     int strategy = 0;
+    private boolean human = false;
 
     /* Other game actors */
     private Coordinator coordinator = null;
     private HashMap<String,Consumer> cons;
     private HashMap<String,Producer> prods;
 
-    /* To manage turns */
-    private boolean taketurns = false;
-    private boolean human = false;
-    private boolean isMyTurn;
-    private Lock turnLock;
-    private Condition turnAvailable;
-    private Condition turnFinished;
 
 
     /**
@@ -97,19 +90,6 @@ implements ConsumerOperations {
     }
 
 
-    /**
-     * @brief prepare for a game in turns
-     *
-     * Initialize the object so that it will 
-     * play a game in turns
-     */
-    public void setTurnGame(){
-        taketurns = true;
-        isMyTurn = false;
-        turnLock = new ReentrantLock();
-        turnAvailable = turnLock.newCondition();
-        turnFinished = turnLock.newCondition();
-    }
 
     /**
      * @brief prepare for a game with human interaction 
@@ -123,40 +103,6 @@ implements ConsumerOperations {
     }
 
 
-    /**
-     * @brief prologue of a turn
-     *
-     * If taketurns == true this function should be called 
-     * immediatly before the execution of any transaction
-     */
-    private void turnActionPrologue(){
-        if (taketurns == false) return;
-        try {
-            turnLock.lock();
-            while (isMyTurn == false) turnAvailable.await();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * @brief epilogue of a turn
-     *
-     * If taketurns == true this function should be called 
-     * immediatly after the execution of any transaction
-     */
-    private void turnActionEpilogue(){
-        if (taketurns == false) return;
-        try {
-            isMyTurn = false; 
-            turnFinished.signal(); 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally { // Ensure unlock
-            turnLock.unlock();
-        }
-    }
 
 
     /* XXX test function */
@@ -180,10 +126,6 @@ implements ConsumerOperations {
     } 
 
 
-    private void keepState(){
-        turnActionPrologue();
-        turnActionEpilogue();
-    }
 
     private void startObservation(){
         turnActionPrologue();
@@ -273,20 +215,6 @@ implements ConsumerOperations {
         }
     }
 
-    public boolean playTurn(){
-        try {
-            turnLock.lock();
-            while (isMyTurn == true) turnFinished.await();
-            isMyTurn = true;
-            turnAvailable.signal();
-        } catch (Exception e){
-            e.printStackTrace();
-        } finally { // Ensure unlock
-            turnLock.unlock();
-        }
-
-        return true;
-    }
         
 
     public void updateConsumers(Consumer[] consumers, String[] ids){

@@ -28,6 +28,21 @@ implements ProducerOperations {
     int capacity = -1;
     int max_total = -1;
 
+    private void produce(){
+        // Actual potential production
+        int p = (int) (resource.amount*relative_prod) + guaranteed_prod;
+        
+        // Respect max_total bound
+        if (max_total != -1) p = Math.min(max_total-total_produced,p);
+        
+        // Respect capacity bound
+        if (capacity != -1) p = Math.min(resource.amount-capacity,p);
+
+        // Update resource
+        resource.amount += p;
+        total_produced += p;
+    }
+
     public ProducerImpl(String type){
         this(type,0);
     }
@@ -47,6 +62,7 @@ implements ProducerOperations {
         resource.amount -= request.amount;
         return request;
     }
+
 
     public Resource queryResource(){ return resource; }
 

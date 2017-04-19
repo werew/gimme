@@ -29,8 +29,16 @@ implements ProducerOperations {
     int max_total = -1;
     
     public void start(){
-        // TODO
+        if (taketurns) return;
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+               produce();
+               // TODO end condition
+            }
+        }, 0, frequency);
     }
+
 
     private void produce(){
         // Actual potential production

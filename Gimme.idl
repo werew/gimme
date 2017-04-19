@@ -34,9 +34,10 @@ module Gimme
   
   interface Agent
   {
-    Resource getResource(in Resource request) ;
     void logmsg(in string msg, in long type);
+    oneway void start() ;
     boolean playTurn() ;
+    Resource getResource(in Resource request) ;
   } ; 
 
 
@@ -50,8 +51,6 @@ module Gimme
     typedef sequence<Producer> TabProd;
     typedef sequence<Consumer> TabCons;
     typedef sequence<string> TabIDs;
-
-    oneway void start() ;
 
     void addObserver(in string id);
     void removeObserver(in string id);

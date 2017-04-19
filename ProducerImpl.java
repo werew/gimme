@@ -27,6 +27,10 @@ implements ProducerOperations {
     int total_produced = 0;
     int capacity = -1;
     int max_total = -1;
+    
+    public void start(){
+        // TODO
+    }
 
     private void produce(){
         // Actual potential production
@@ -163,7 +167,7 @@ implements ProducerOperations {
             if (cmd.hasOption('r')) p.relative_prod = Float.parseFloat(cmd.getOptionValue('r'));
             if (cmd.hasOption('g')) p.guaranteed_prod = Integer.parseInt(cmd.getOptionValue('g'));
             if (cmd.hasOption('c')) p.capacity = Integer.parseInt(cmd.getOptionValue('c'));
-            if (cmd.hasOption('t')) p.seTurnGame();
+            if (cmd.hasOption('t')) p.setTurnGame();
 
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));

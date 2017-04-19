@@ -105,6 +105,7 @@ public abstract class AgentImpl extends AgentPOA {
     }
 
     public abstract Resource getResource(Resource request);
+    public abstract void start();
 
     public AgentImpl(){
         transactions = new HashMap<String,Transaction>();

@@ -3,14 +3,16 @@
 TODO
 - Build a class for writing logs 
 - Use human-readable ids (DONE)
-- Production of resources (!!!!)
-- Get resources list from coordinator (!!!!)
+- Production of resources (DONE)
+- Get resources list from coordinator (DONE)
 - Implement human cli (!)
 - Strategies 
-- Winning conditions (!!)
+- Winning conditions (!!) (Maybe use setResources to get also the goal for each resource)
 - Store transactions (TODO for production)
 - Observe transactions (TODO handle stolen)
 - Clean imports
+- Protect concurrent access to resource in productor
+- Turn management should be in commont to all agents
 
 NOTES
 - Explaining choice to use tie model to be able to use inheritance

@@ -163,7 +163,7 @@ implements ProducerOperations {
             if (cmd.hasOption('r')) p.relative_prod = Float.parseFloat(cmd.getOptionValue('r'));
             if (cmd.hasOption('g')) p.guaranteed_prod = Integer.parseInt(cmd.getOptionValue('g'));
             if (cmd.hasOption('c')) p.capacity = Integer.parseInt(cmd.getOptionValue('c'));
-            p.taketurns = cmd.hasOption('t');
+            if (cmd.hasOption('t')) p.seTurnGame();
 
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));

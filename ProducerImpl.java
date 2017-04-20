@@ -20,27 +20,46 @@ implements ProducerOperations {
     Coordinator coordinator;
     Resource resource;
 
-    boolean taketurns = false;
-    int frequency = 1;
+    private int total_produced = 0;
+    int frequency_turns = 1;
+    int frequency_ms = 500;
+
     float relative_prod = 0;
-    int guaranteed_prod = 0;
-    int total_produced = 0;
+    int guaranteed_prod = 10;
     int capacity = -1;
     int max_total = -1;
     
     public void start(){
-        if (taketurns) return;
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            public void run() {
-               produce();
-               // TODO end condition
+        if (taketurns) {
+            turnHandler();
+        } else {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                public void run() {
+                   produce();
+                }
+            }, 0, frequency_ms);
+        }
+    }
+
+    private void turnHandler(){
+        int cnt = 0; 
+        while (true) {
+            if (cnt == frequency_turns){
+                produce();
+                cnt = 0;
+            } else {
+                keepState();
+                cnt++;
             }
-        }, 0, frequency);
+        }
     }
 
 
     private void produce(){
+        if (taketurns) turnActionPrologue();
+        logmsg("Produce ("+resource.amount+")",0);
+
         // Actual potential production
         int p = (int) (resource.amount*relative_prod) + guaranteed_prod;
         
@@ -53,14 +72,17 @@ implements ProducerOperations {
         // Update resource
         resource.amount += p;
         total_produced += p;
+
+        if (taketurns) turnActionEpilogue();
+    }
+
+
+    public ProducerImpl(String type, int amount){
+        resource = new Resource(type,amount);
     }
 
     public ProducerImpl(String type){
         this(type,0);
-    }
-
-    public ProducerImpl(String type, int amount){
-        resource = new Resource(type,amount);
     }
 
 
@@ -170,12 +192,15 @@ implements ProducerOperations {
             p.myprod = tie._this(cm.orb);
 
             /* Get options */ 
-            if (cmd.hasOption('f')) p.frequency = Integer.parseInt(cmd.getOptionValue('f'));
             if (cmd.hasOption('m')) p.max_total = Integer.parseInt(cmd.getOptionValue('m'));
             if (cmd.hasOption('r')) p.relative_prod = Float.parseFloat(cmd.getOptionValue('r'));
             if (cmd.hasOption('g')) p.guaranteed_prod = Integer.parseInt(cmd.getOptionValue('g'));
             if (cmd.hasOption('c')) p.capacity = Integer.parseInt(cmd.getOptionValue('c'));
             if (cmd.hasOption('t')) p.setTurnGame();
+            if (cmd.hasOption('f')) {
+                if (p.taketurns) p.frequency_turns = Integer.parseInt(cmd.getOptionValue('f'));
+                else  p.frequency_ms = Integer.parseInt(cmd.getOptionValue('f'));
+            }
 
             /* Get coordinator */
             Coordinator coord = CoordinatorHelper.narrow(cm.getRef("Coordinator"));

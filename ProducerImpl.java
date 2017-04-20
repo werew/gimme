@@ -13,12 +13,14 @@ import Gimme.ProducerOperations;
 import Gimme.ProducerHelper;
 import Gimme.Resource;
 import org.apache.commons.cli.*;
+import java.util.concurrent.locks.*;
 
 public class ProducerImpl extends AgentImpl
 implements ProducerOperations {
     Producer myprod;
     Coordinator coordinator;
     Resource resource;
+    private Lock reslock;
 
     private int total_produced = 0;
     int frequency_turns = 1;
@@ -58,6 +60,7 @@ implements ProducerOperations {
 
     private void produce(){
         if (taketurns) turnActionPrologue();
+        reslock.lock();
         logmsg("Produce ("+resource.amount+")",0);
 
         // Actual potential production
@@ -73,12 +76,14 @@ implements ProducerOperations {
         resource.amount += p;
         total_produced += p;
 
+        reslock.unlock();
         if (taketurns) turnActionEpilogue();
     }
 
 
     public ProducerImpl(String type, int amount){
         resource = new Resource(type,amount);
+        reslock = new ReentrantLock();
     }
 
     public ProducerImpl(String type){
@@ -87,18 +92,28 @@ implements ProducerOperations {
 
 
     public Resource getResource(Resource request){
+        reslock.lock();
         if (request.type != resource.type || 
             request.amount > resource.amount){
             request.amount = 0;
+            reslock.unlock();
             return request;
         }
 
         resource.amount -= request.amount;
+        reslock.unlock();
         return request;
     }
 
 
-    public Resource queryResource(){ return resource; }
+    public Resource queryResource(){
+        Resource r = new Resource();
+        reslock.lock();
+        r.type = resource.type;
+        r.amount = resource.amount;
+        reslock.unlock();
+        return r; 
+    }
 
     public boolean joinCoordinator(Coordinator c, String id){
 

@@ -112,7 +112,12 @@ implements ProducerOperations {
         total_produced += p;
 
         reslock.unlock();
-        if (taketurns) turnActionEpilogue();
+        turnActionEpilogue();
+
+        if (max_total <= total_produced) {
+            coordinator.addTermProd(gameID);
+            throw new GameFinished();
+        }
     }
 
 

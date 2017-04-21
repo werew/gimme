@@ -120,8 +120,8 @@ implements ProducerOperations {
         reslock.lock();
 
         // Return 0 for invalid requests
-        if (request.type != resource.type || 
-            request.amount > resource.amount){
+        if (!request.type.equals(resource.type) || 
+             request.amount > resource.amount   ){
             request.amount = 0;
             reslock.unlock();
             return request;

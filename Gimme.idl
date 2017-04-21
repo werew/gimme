@@ -58,7 +58,7 @@ module Gimme
 
     void updateProducers(in TabProd producers, in TabIDs ids) ;
     void updateConsumers(in TabCons consumers, in TabIDs ids) ;
-    void setResources(in TabIDs resources);
+    void setGoal(in long goal, in TabIDs resources);
   } ;
 
 

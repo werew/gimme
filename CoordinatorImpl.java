@@ -27,6 +27,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private boolean running = false;
 
     /* Some game values */
+    int goal;
     final int coutdown = 5;
     final String fullmsg  = "Game is full";
     final String readymsg = "Game will start in 5 seconds!";
@@ -139,16 +140,17 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 for (Consumer c : consumers.values()){
                     c.updateProducers(list_producers,prods_ids);
                     c.updateConsumers(list_opponents,cons_ids);
-                    c.setResources(list_resources);
+                    c.setGoal(goal, list_resources);
                 }
                 
                 for (Consumer c : consumers.values()) c.start();
+                for (Producer p : producers.values()) p.start();
 
                 while (true) {
                     for (Consumer c : consumers.values()) c.playTurn();
+                    for (Producer p : producers.values()) p.playTurn();
                 }
                     
-                //for (Producer p : producers);// p.start();
             }
         }, coutdown * 1000);
 
@@ -187,7 +189,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     private static void printUsage(Options options, int exitcode){
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("java CoordinatorImpl [OPTIONS] <Name Server> <Port>", options);
+        formatter.printHelp("java CoordinatorImpl [OPTIONS] <Name Server> <Port> <Goal>", options);
         System.exit(exitcode);
     }
 
@@ -205,7 +207,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             
             /* Check arguments */
             argz = cmd.getArgs();
-            if (argz.length < 2) throw new ParseException("Argument missing");
+            if (argz.length < 3) throw new ParseException("Argument missing");
 
             /* Init coodinator */
             if (cmd.hasOption('t')) coord.taketurns = true;
@@ -213,6 +215,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 coord.ncons = Integer.parseInt(cmd.getOptionValue('c'));
             if (cmd.hasOption('p'))
                 coord.nprod = Integer.parseInt(cmd.getOptionValue('p'));
+            coord.goal = Integer.parseInt(argz[2]);
 
             /* Init corba service */
             CorbaManager cm = new CorbaManager(argz[0], argz[1]);

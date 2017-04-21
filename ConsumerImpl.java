@@ -30,6 +30,7 @@ implements ConsumerOperations {
     private ConcurrentSkipListSet<String> observers;
     private int strategy = 0;
     private boolean human = false;
+    private int goal;
 
     /* Other game actors */
     private Coordinator coordinator = null;
@@ -49,7 +50,6 @@ implements ConsumerOperations {
     public ConsumerImpl(boolean human,int strategy){
         if (human) this.setHuman();
         resources = new HashMap<String,Integer>();	
-        view = new ConcurrentHashMap<String,ConcurrentSkipListSet<String>>();
         observers = new ConcurrentSkipListSet<String>();
         this.strategy = strategy;
     }
@@ -256,9 +256,11 @@ implements ConsumerOperations {
 
     /**
      * @brief 
-     * TODO modify in setGoal
+     * 
      */
-    public void setResources(String[] resources){
+    public void setGoal(int goal, String[] resources){
+        this.goal = goal;
+        view = new ConcurrentHashMap<String,ConcurrentSkipListSet<String>>();
         for (String r : resources){
             ConcurrentSkipListSet<String> prod_set = new ConcurrentSkipListSet<String>();
             view.put(r,prod_set);

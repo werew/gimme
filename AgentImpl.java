@@ -62,10 +62,15 @@ public abstract class AgentImpl extends AgentPOA {
     /**
      * @brief prologue of a turn
      *
-     * If taketurns == true this function should be called 
-     * immediately before the execution of any transaction
+     * This function should be called immediately before the execution of any
+     * turn action (or transaction) 
      */
-    protected void turnActionPrologue(){
+    protected void turnActionPrologue() throws GameFinished {
+        if (gamefinished.get()) {
+            turnFinished.signal(); // Unlock playTurn() if necessary
+            throw new GameFinished();
+        }
+
         if (taketurns == false) return;
         try {
             turnLock.lock();
@@ -79,8 +84,8 @@ public abstract class AgentImpl extends AgentPOA {
     /**
      * @brief epilogue of a turn
      *
-     * If taketurns == true this function should be called 
-     * immediately after the execution of any transaction
+     * This function should be called immediately after the execution of any
+     * turn action (or transaction)
      */
     protected void turnActionEpilogue(){
         if (taketurns == false) return;
@@ -124,7 +129,7 @@ public abstract class AgentImpl extends AgentPOA {
 
 
     /* @brief empty turn (do nothing) */
-    protected void keepState(){
+    protected void keepState() throws GameFinished {
         turnActionPrologue();
         turnActionEpilogue();
     }

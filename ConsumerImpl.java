@@ -107,7 +107,7 @@ implements ConsumerOperations {
 
 
     /* XXX test function */
-    private void teststrategy0(){
+    private void teststrategy0() throws GameFinished {
         logmsg("teststrat0",0);
         while (true) {
             startObservation();
@@ -139,7 +139,7 @@ implements ConsumerOperations {
      * Add the Consumer to the observers list of
      * the other consumers
      */
-    private void startObservation(){
+    private void startObservation() throws GameFinished {
         turnActionPrologue();
         logmsg("startobs",0);
         for (Consumer c : cons.values()){
@@ -155,7 +155,7 @@ implements ConsumerOperations {
      * Remove the Consumer from the observers list of
      * the other consumers
      */
-    private void stopObservation(){
+    private void stopObservation() throws GameFinished {
         turnActionPrologue();
         logmsg("stopobs",0);
         for (Consumer c : cons.values()){
@@ -237,7 +237,7 @@ implements ConsumerOperations {
     }
 
     /* @brief queryResource's wrapper */
-    private Resource queryResource_wr(String id){
+    private Resource queryResource_wr(String id) throws GameFinished {
         turnActionPrologue();
         logmsg("queryres",0);
         Producer p = prods.get(id);
@@ -283,7 +283,7 @@ implements ConsumerOperations {
                 case 1: teststrategy1();
                     break;
             }
-        } catch (GameFinished e){
+        } catch (GameFinished gf){
             logmsg("Game has finished!",0);
         }
     }
@@ -478,4 +478,3 @@ implements ConsumerOperations {
     }
 }
 
-class GameFinished extends Exception {}

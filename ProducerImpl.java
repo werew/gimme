@@ -60,37 +60,41 @@ implements ProducerOperations {
 
     /* @brief start the game launching the production */
     public void start(){
-        if (taketurns) {
-            turnHandler();
-        } else {
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                public void run() {
-                   produce();
-                }
-            }, 0, frequency_ms);
-        }
+            if (taketurns) {
+                turnHandler();
+            } else {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    public void run() {
+                       try { produce(); }
+                       catch (GameFinished gf){}
+                    }
+                }, 0, frequency_ms);
+            }
     }
 
 
     /* @brief Production logic for turn-based games */
-    private void turnHandler(){
+    private void turnHandler() {
         int cnt = 0; 
-        while (true) {
-            if (cnt == frequency_turns){
-                produce();
-                cnt = 0;
-            } else {
-                keepState();
-                cnt++;
+        try {
+            while (true) {
+                if (cnt == frequency_turns){
+                    produce();
+                    cnt = 0;
+                } else {
+                    keepState();
+                    cnt++;
+                }
             }
+        } catch (GameFinished gf){
         }
     }
 
     
     /* @brief do a production step */
-    private void produce(){
-        if (taketurns) turnActionPrologue();
+    private void produce() throws GameFinished {
+        turnActionPrologue();
         reslock.lock();
         logmsg("Produce ("+resource.amount+")",0);
 

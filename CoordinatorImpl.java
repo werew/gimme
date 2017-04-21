@@ -20,10 +20,15 @@ public class CoordinatorImpl extends CoordinatorPOA {
     HashMap<String,Producer> producers;
     HashMap<String,Consumer> consumers;
     HashMap<String,ArrayList<Producer>> resources;
-    private ArrayList<String> winners;
-    private ReentrantLock lockwinners;
+
     private int ncons = 0;
     private int nprod = 0;
+
+    /* End game */
+    private ArrayList<String> winners;
+    private Lock lockwinners;
+    private ArrayList<String> endprod;
+    private Lock lockendprod;
 
     /* Some infos on the game */
     private boolean taketurns = false;
@@ -44,6 +49,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
         resources = new HashMap<String,ArrayList<Producer>>();
         winners = new ArrayList<String>();
         lockwinners = new ReentrantLock();
+        endprod = new ArrayList<String>();
+        lockendprod = new ReentrantLock();
     }
 
 
@@ -116,6 +123,19 @@ public class CoordinatorImpl extends CoordinatorPOA {
         lockwinners.unlock();
 
         if (winners.size() == consumers.size()){
+            for (Agent a : consumers.values()) a.setGameFinished();
+            for (Agent a : producers.values()) a.setGameFinished();
+        }
+    }
+
+    /* @brief add producer to terminated */
+    public void addTermProd(String id){
+        lockendprod.lock();
+        if (endprod.contains(id) == false)
+            endprod.add(id);
+        lockendprod.unlock();
+
+        if (endprod.size() == producers.size()){
             for (Agent a : consumers.values()) a.setGameFinished();
             for (Agent a : producers.values()) a.setGameFinished();
         }

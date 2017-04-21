@@ -68,6 +68,7 @@ module Gimme
     Registration loginConsumer(in Consumer c, in string id) ;
     Registration loginProducer(in Producer p, in string id, in string res) ;
     void addWinner(in string id);
+    void addTermProd(in string id);
     GameInfos getGameInfos();
   } ;
 

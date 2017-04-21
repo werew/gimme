@@ -17,20 +17,48 @@ import java.util.concurrent.locks.*;
 
 public class ProducerImpl extends AgentImpl
 implements ProducerOperations {
+    // Reference to the IDL entity
     Producer myprod;
-    Coordinator coordinator;
-    Resource resource;
-    private Lock reslock;
 
-    private int total_produced = 0;
-    int frequency_turns = 1;
-    int frequency_ms = 500;
-
-    float relative_prod = 0;
-    int guaranteed_prod = 10;
-    int capacity = -1;
-    int max_total = -1;
+    // Coordinator of the game
+    Coordinator coordinator; 
     
+    // Resource produced 
+    Resource resource;
+    private Lock reslock; // to regulate concurrent access 
+
+    // This values should be modified only before
+    // the game has started  
+    private int total_produced = 0; // total amount of resource produced during the game
+    int frequency_turns = 1; // production frequency for turn-based games (in turns)
+    int frequency_ms = 500;  // production frequency for standard games (in milliseconds)
+    float relative_prod = 0; // factor for relative production 
+    int guaranteed_prod = 10;// amount of guaranteed production
+    int capacity = -1;       // max stock capacity (-1 => infinity)
+    int max_total = -1;      // max total production (-1 => infinity)
+
+    /**
+     * @brief ctor
+     *  
+     * Initialize the instance of the producer.
+     * @param type type of the resource to produce
+     * @param amount initial amount of the resource
+     */    
+    public ProducerImpl(String type, int amount){
+        resource = new Resource(type,amount);
+        reslock = new ReentrantLock();
+    }
+    
+    /**
+     * @brief wrapper for ProducerImpl(type,0)
+     * @see ProducerImpl(String type, int amount)
+     */
+    public ProducerImpl(String type){
+        this(type,0);
+    }
+
+
+    /* @brief start the game launching the production */
     public void start(){
         if (taketurns) {
             turnHandler();
@@ -44,6 +72,8 @@ implements ProducerOperations {
         }
     }
 
+
+    /* @brief Production logic for turn-based games */
     private void turnHandler(){
         int cnt = 0; 
         while (true) {
@@ -57,7 +87,8 @@ implements ProducerOperations {
         }
     }
 
-
+    
+    /* @brief do a production step */
     private void produce(){
         if (taketurns) turnActionPrologue();
         reslock.lock();
@@ -81,18 +112,14 @@ implements ProducerOperations {
     }
 
 
-    public ProducerImpl(String type, int amount){
-        resource = new Resource(type,amount);
-        reslock = new ReentrantLock();
-    }
-
-    public ProducerImpl(String type){
-        this(type,0);
-    }
-
-
+    /**
+     * @brief returns and consume the resource asked
+     * @see Agent.getResource
+     */    
     public Resource getResource(Resource request){
         reslock.lock();
+
+        // Return 0 for invalid requests
         if (request.type != resource.type || 
             request.amount > resource.amount){
             request.amount = 0;
@@ -106,6 +133,14 @@ implements ProducerOperations {
     }
 
 
+    /**
+     * @brief returns the current status of the resource
+     *
+     * Returns the status of the resource produced. This function
+     * can be used by the Consumers to know the type and amount
+     * of the resource produced by a Producer before trying to get it
+     * @return a copy of the resource
+     */
     public Resource queryResource(){
         Resource r = new Resource();
         reslock.lock();
@@ -115,6 +150,16 @@ implements ProducerOperations {
         return r; 
     }
 
+
+    /**
+     * @brief join a game as a producer 
+     *
+     * Login into a coordinator with a given id order
+     * to participate to the game
+     * @param c reference to the Coordinator
+     * @param id identifier to use for the Producer or "auto-set"
+     * @return true if the join was successful, false otherwise
+     */
     public boolean joinCoordinator(Coordinator c, String id){
 
         Registration r = c.loginProducer(myprod,id,resource.type);
@@ -197,16 +242,15 @@ implements ProducerOperations {
             argz = cmd.getArgs();
             if (argz.length < 3) throw new ParseException("Argument missing");
 
-
             /* Open a server */
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
 
-            /* Create corba object */
+            /* Create producer and tie to POA */
             ProducerImpl p = new ProducerImpl(argz[2]) ;
             ProducerPOATie tie = new ProducerPOATie(p, cm.rootPOA);
             p.myprod = tie._this(cm.orb);
 
-            /* Get options */ 
+            /* Get options and init producer */ 
             if (cmd.hasOption('m')) p.max_total = Integer.parseInt(cmd.getOptionValue('m'));
             if (cmd.hasOption('r')) p.relative_prod = Float.parseFloat(cmd.getOptionValue('r'));
             if (cmd.hasOption('g')) p.guaranteed_prod = Integer.parseInt(cmd.getOptionValue('g'));

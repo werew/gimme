@@ -20,15 +20,25 @@ public abstract class AgentImpl extends AgentPOA {
 
     private Date date;
 
+    /* Agent's game identifier */
     protected String gameID;
+
+    /* Transactions carried out */
     protected HashMap<String,Transaction> transactions;
 
-    /* To manage turns */
+    /* Turn management */
     protected boolean taketurns = false;
     private boolean isMyTurn;
     private Lock turnLock;
     private Condition turnAvailable;
     private Condition turnFinished;
+
+
+    /* @brief ctor */
+    public AgentImpl(){
+        transactions = new HashMap<String,Transaction>();
+        date = new Date();
+    }
 
     /**
      * @brief prepare for a game in turns
@@ -48,7 +58,7 @@ public abstract class AgentImpl extends AgentPOA {
      * @brief prologue of a turn
      *
      * If taketurns == true this function should be called 
-     * immediatly before the execution of any transaction
+     * immediately before the execution of any transaction
      */
     protected void turnActionPrologue(){
         if (taketurns == false) return;
@@ -65,7 +75,7 @@ public abstract class AgentImpl extends AgentPOA {
      * @brief epilogue of a turn
      *
      * If taketurns == true this function should be called 
-     * immediatly after the execution of any transaction
+     * immediately after the execution of any transaction
      */
     protected void turnActionEpilogue(){
         if (taketurns == false) return;
@@ -79,6 +89,14 @@ public abstract class AgentImpl extends AgentPOA {
         }
     }
 
+
+    /**
+     * @brief confers the permission to play a turn
+     * 
+     * This method is called by the Coordinator to let
+     * an Agent play his turn
+     * TODO return ??
+     */
     public boolean playTurn(){
         try {
             turnLock.lock();
@@ -93,25 +111,45 @@ public abstract class AgentImpl extends AgentPOA {
         return true;
     }
 
+
+    /* @brief empty turn (do nothing) */
     protected void keepState(){
         turnActionPrologue();
         turnActionEpilogue();
     }
 
 
-    /* TODO use log class to implement msg types */
-    public void logmsg(String msg, int type){
-        System.out.println(msg);
-    }
-
+    /**
+     * @brief returns and consume the resource asked
+     *
+     * Get a certain quantity of a resource from the Agent
+     * @param request a instance of Resource where type
+     *        represent the type of the resource requested
+     *        and amount the quantity to consume
+     * @return an instance of Resource which indicates the 
+     *        resource type and the amount obtained. 
+     *        In case of success the returned resource is
+     *        the same as request. An amount of zero
+     *        indicates that the requested resource or amount
+     *        was not available
+     */
     public abstract Resource getResource(Resource request);
+
+
+    /* @brief launch game */ 
     public abstract void start();
 
-    public AgentImpl(){
-        transactions = new HashMap<String,Transaction>();
-        date = new Date();
-    }
 
+    /**
+     * @brief create and store a transaction
+     *
+     * Create and store a Transaction into the list
+     * transactions.
+     * @param type type of the transaction
+     * @param from id of the other agent implied
+     * @param content exchanged content
+     * @return added Transaction
+     */
     protected Transaction addTransaction(int type, String from, Resource content){
         Transaction t = new Transaction();
         t.type     = type;
@@ -127,5 +165,9 @@ public abstract class AgentImpl extends AgentPOA {
     }
 
 
+    /* TODO use log class to implement msg types */
+    public void logmsg(String msg, int type){
+        System.out.println(msg);
+    }
 
 }

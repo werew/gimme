@@ -28,7 +28,7 @@ implements ConsumerOperations {
     private HashMap<String,Integer> resources;
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private ConcurrentSkipListSet<String> observers;
-    int strategy = 0;
+    private int strategy = 0;
     private boolean human = false;
 
     /* Other game actors */
@@ -38,8 +38,13 @@ implements ConsumerOperations {
 
 
 
+
     /**
      * @brief ctor
+     * 
+     * @param human play game in human mode (only available 
+     *        for turn-based games)
+     * @param strategy id of the strategy to use for the game
      */
     public ConsumerImpl(boolean human,int strategy){
         if (human) this.setHuman();
@@ -50,7 +55,6 @@ implements ConsumerOperations {
     }
 
 
-
     /**
      * @brief Try to join a coordinator
      *
@@ -59,7 +63,7 @@ implements ConsumerOperations {
      * @param c Coordinator to join 
      * @param id Identifier desired or "auto-set"
      * @return true if the coordinator has been joined 
-     *         succesfully, false otherwise
+     *         successfully, false otherwise
      */
     public boolean joinCoordinator(Coordinator c, String id){
 
@@ -90,7 +94,6 @@ implements ConsumerOperations {
     }
 
 
-
     /**
      * @brief prepare for a game with human interaction 
      *
@@ -103,10 +106,9 @@ implements ConsumerOperations {
     }
 
 
-
-
     /* XXX test function */
     private void teststrategy0(){
+        logmsg("teststrat0",0);
         while (true) {
             startObservation();
             for (int i = 0; i < 3; i++) keepState();
@@ -114,7 +116,10 @@ implements ConsumerOperations {
         }
     } 
 
+
+    /* XXX test function */
     private void teststrategy1(){
+        logmsg("teststrat1",0);
         while (true) {
             for (String id : prods.keySet()){
                 Resource r = queryResource_wr(id);
@@ -126,23 +131,46 @@ implements ConsumerOperations {
     } 
 
 
-
+    /**
+     * @brief start to observe transactions
+     *
+     * Add the Consumer to the observers list of
+     * the other consumers
+     */
     private void startObservation(){
         turnActionPrologue();
+        logmsg("startobs",0);
         for (Consumer c : cons.values()){
             c.addObserver(gameID);
         }
         turnActionEpilogue();
     }
 
+
+    /**
+     * @brief stop to observe transactions
+     *
+     * Remove the Consumer from the observers list of
+     * the other consumers
+     */
     private void stopObservation(){
         turnActionPrologue();
+        logmsg("stopobs",0);
         for (Consumer c : cons.values()){
             c.removeObserver(gameID);
         }
         turnActionEpilogue();
     }
 
+
+    /**
+     * @brief update view
+     *
+     * Update the view adding the relation between a product
+     * and a producer
+     * @param product name of the resource produced
+     * @param produced id of the producer which produce product
+     */
     private void addToView(String product, String producer){
         ConcurrentSkipListSet<String> prod_set = null;
         if (view.containsKey(product) == false){
@@ -162,6 +190,7 @@ implements ConsumerOperations {
      * always use a wrapper of the original IDL method's interface.
      */
 
+
     /* @brief getResource's wrapper */
     private Resource getResource_wr(String id, Resource request){
         turnActionPrologue();
@@ -179,6 +208,7 @@ implements ConsumerOperations {
     /* @brief queryResource's wrapper */
     private Resource queryResource_wr(String id){
         turnActionPrologue();
+        logmsg("queryres",0);
         Producer p = prods.get(id);
         Resource r = p.queryResource();
         Transaction t = addTransaction(Common.QUERY,id,r);
@@ -194,11 +224,26 @@ implements ConsumerOperations {
      * methods of the IDL's interface Consumer 
      */
 
-
+    /**
+     * @brief consume a resource from this Consumer
+     *
+     * This method can be used to steal resources from the
+     * Consumer in the same way as resources are consumed from
+     * a Producer
+     * @see ProducerImpl.getResource
+     */
     public Resource getResource(Resource request){
+        // TODO
         return new Resource("Test",0);
     }
 
+
+    /**
+     * @brief Start game
+     *
+     * This function should be called by the Coordinator    
+     * as a signal that the game has started
+     */
     public void start(){
         switch (strategy) {
             case 0: teststrategy0();
@@ -208,6 +253,11 @@ implements ConsumerOperations {
         }
     }
 
+
+    /**
+     * @brief 
+     * TODO modify in setGoal
+     */
     public void setResources(String[] resources){
         for (String r : resources){
             ConcurrentSkipListSet<String> prod_set = new ConcurrentSkipListSet<String>();
@@ -217,6 +267,15 @@ implements ConsumerOperations {
 
         
 
+    /**
+     * @brief Set the list of Consumers of the game
+     * TODO modify in setConsumers
+     * This method should be used by the Coordinator to inform
+     * the Consumer about the other Consumers who are 
+     * participating to the game
+     * @param consumers Array of the consumers
+     * @param ids Array containing the ids of the consumers
+     */
     public void updateConsumers(Consumer[] consumers, String[] ids){
         cons  = new HashMap<String,Consumer>();    
         for (int i = 0; i < consumers.length; i++){
@@ -226,6 +285,15 @@ implements ConsumerOperations {
         }
     }
 
+
+    /**
+     * @brief Set the list of Producers of the game
+     * TODO modify in setProducers
+     * This method should be used by the Coordinator to inform the
+     * Consumer about which Producers are participating to the game
+     * @param consumers Array of the consumers
+     * @param ids Array containing the ids of the consumers
+     */
     public void updateProducers(Producer[] producers, String[] ids){
         prods = new HashMap<String,Producer>();    
         for (int i = 0; i < producers.length; i++){
@@ -234,17 +302,37 @@ implements ConsumerOperations {
         }
     }
 
+
+    /**
+     * @brief add a Consumer to the list of the observers
+     * 
+     * @param id identifier of the Consumer
+     */
     public void addObserver(String id){
        logmsg("Adding "+id,0);
        observers.add(id); 
     }
 
+
+    /**
+     * @brief remove a Consumer from the list of the observers
+     * 
+     * @param id identifier of the Consumer
+     */
     public void removeObserver(String id){
        logmsg("Removing "+id,0);
        observers.remove(id); 
     }
 
-
+    
+    /**
+     * @brief Handle an observed Transaction
+     * 
+     * This method is used to show a Transaction to the
+     * Consumer when this last is observing.
+     * @param who id of the observee
+     * @param t transaction observed
+     */
     public void seeTransaction(String who, Transaction t){
         switch (t.type) {
             case Common.REQUEST:
@@ -290,7 +378,6 @@ implements ConsumerOperations {
     }
 
 
-
     /**
      * @brief Print usage and exit the program
      * @param options options to use for the usage description 
@@ -301,7 +388,6 @@ implements ConsumerOperations {
         formatter.printHelp("java ConsumerImpl [OPTIONS] <Name Server> <Port>", options);
         System.exit(exitcode);
     }
-
 
 
     public static void main(String args[]){

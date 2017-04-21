@@ -116,7 +116,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
         lockwinners.unlock();
 
         if (winners.size() == consumers.size()){
-            // TODO everybody won
+            for (Agent a : consumers.values()) a.setGameFinished();
+            for (Agent a : producers.values()) a.setGameFinished();
         }
     }
 

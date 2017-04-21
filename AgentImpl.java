@@ -108,16 +108,19 @@ public abstract class AgentImpl extends AgentPOA {
      * TODO return ??
      */
     public boolean playTurn(){
-        if (gamefinished.get()) return true;
+        logmsg("--------start",0); 
+        if (gamefinished.get()) {logmsg("----------stop fin",0); return true;}
         try {
             turnLock.lock();
             while (isMyTurn == true) turnFinished.await();
             isMyTurn = true;
+            logmsg("~~~~~~ body",0);
             turnAvailable.signal();
         } catch (Exception e){
             e.printStackTrace();
         } finally { // Ensure unlock
             turnLock.unlock();
+            logmsg("-----------stop",0);
         }
         return true;
     }

@@ -113,6 +113,9 @@ implements ConsumerOperations {
             startObservation();
             for (int i = 0; i < 3; i++) keepState();
             stopObservation();
+            Resource req = new Resource();
+            req.type = "Dinero"; req.amount = 20;
+            Resource r = getResource_wr("Producer-0",req);
         }
     } 
 
@@ -123,7 +126,7 @@ implements ConsumerOperations {
         while (true) {
             for (String id : prods.keySet()){
                 Resource req = new Resource();
-                req.type = "Dinero"; req.amount = 2;
+                req.type = "Dinero"; req.amount = 10;
                 Resource r = getResource_wr(id,req);
                 logmsg(r.type+" "+r.amount,0);
                 try{Thread.sleep(1000);
@@ -284,6 +287,7 @@ implements ConsumerOperations {
                     break;
             }
         } catch (GameFinished gf){
+            setGameFinished();
             logmsg("Game has finished!",0);
         }
     }

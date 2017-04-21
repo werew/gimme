@@ -25,7 +25,7 @@ implements ConsumerOperations {
     private Consumer mycons = null;
 
     /* My game infos */
-    private HashMap<String,Integer> resources;
+    private ConcurrentHashMap<String,Integer> resources;
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private ConcurrentSkipListSet<String> observers;
     private int strategy = 0;
@@ -49,7 +49,7 @@ implements ConsumerOperations {
      */
     public ConsumerImpl(boolean human,int strategy){
         if (human) this.setHuman();
-        resources = new HashMap<String,Integer>();	
+        resources = new ConcurrentHashMap<String,Integer>();	
         observers = new ConcurrentSkipListSet<String>();
         this.strategy = strategy;
     }

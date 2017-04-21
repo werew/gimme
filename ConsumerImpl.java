@@ -194,13 +194,29 @@ implements ConsumerOperations {
     /* @brief getResource's wrapper */
     private Resource getResource_wr(String id, Resource request){
         turnActionPrologue();
+        
+        // Get the agent 
         Agent a = null;
         if (prods.containsKey(id)) a = prods.get(id);
         else a = cons.get(id);
+    
+        // Perform request
         Resource r = a.getResource(request);
+
+        // Update transactions
         Transaction t = addTransaction(Common.REQUEST,id,r); 
+        
+        // Diffuse transaction to observers
         for (String c : observers) 
             cons.get(c).seeTransaction(gameID,t);
+    
+        // Update resource
+        Integer amount = resources.get(r.type);
+        amount += r.amount;
+        resources.put(r.type, amount);
+        
+        // TODO check end cond
+
         turnActionEpilogue();
         return r;
     }

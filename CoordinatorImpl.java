@@ -114,6 +114,10 @@ public class CoordinatorImpl extends CoordinatorPOA {
         if (winners.contains(id) == false)
             winners.add(id);
         lockwinners.unlock();
+
+        if (winners.size() == consumers.size()){
+            // TODO everybody won
+        }
     }
 
 

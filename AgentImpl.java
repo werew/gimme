@@ -15,6 +15,7 @@ import Gimme.AgentHelper;
 import Gimme.GameInfos;
 import org.apache.commons.cli.*;
 import java.util.concurrent.locks.*;
+import java.util.concurrent.atomic.*;
 
 public abstract class AgentImpl extends AgentPOA {
 
@@ -33,11 +34,15 @@ public abstract class AgentImpl extends AgentPOA {
     private Condition turnAvailable;
     private Condition turnFinished;
 
+    /* Game finished ? */
+    protected AtomicBoolean gamefinished;
+
 
     /* @brief ctor */
     public AgentImpl(){
         transactions = new HashMap<String,Transaction>();
         date = new Date();
+        gamefinished = new AtomicBoolean(false); 
     }
 
     /**
@@ -98,6 +103,7 @@ public abstract class AgentImpl extends AgentPOA {
      * TODO return ??
      */
     public boolean playTurn(){
+        if (gamefinished.get()) return true;
         try {
             turnLock.lock();
             while (isMyTurn == true) turnFinished.await();
@@ -109,6 +115,11 @@ public abstract class AgentImpl extends AgentPOA {
             turnLock.unlock();
         }
         return true;
+    }
+
+
+    public void setGameFinished(){
+        gamefinished.set(true);
     }
 
 

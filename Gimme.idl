@@ -52,6 +52,7 @@ module Gimme
     typedef sequence<Producer> TabProd;
     typedef sequence<Consumer> TabCons;
     typedef sequence<string> TabIDs;
+    typedef sequence<Resource> TabRes;
 
     void addObserver(in string id);
     void removeObserver(in string id);
@@ -60,6 +61,8 @@ module Gimme
     void updateProducers(in TabProd producers, in TabIDs ids) ;
     void updateConsumers(in TabCons consumers, in TabIDs ids) ;
     void setGoal(in long goal, in TabIDs resources);
+
+    TabRes getResult();
   } ;
 
 

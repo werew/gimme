@@ -6,6 +6,7 @@ import org.omg.CosNaming.*;
 import Gimme.Consumer;
 import Gimme.Registration;
 import Gimme.Producer;
+import Gimme.Resource;
 import Gimme.Coordinator;
 import Gimme.CoordinatorPOA;
 import Gimme.CoordinatorHelper;
@@ -122,10 +123,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             winners.add(id);
         lockwinners.unlock();
 
-        if (winners.size() == consumers.size()){
-            for (Agent a : consumers.values()) a.setGameFinished();
-            for (Agent a : producers.values()) a.setGameFinished();
-        }
+        if (winners.size() == consumers.size()) endGame();
     }
 
     /* @brief add producer to terminated */
@@ -135,10 +133,38 @@ public class CoordinatorImpl extends CoordinatorPOA {
             endprod.add(id);
         lockendprod.unlock();
 
-        if (endprod.size() == producers.size()){
-            for (Agent a : consumers.values()) a.setGameFinished();
-            for (Agent a : producers.values()) a.setGameFinished();
+        if (endprod.size() == producers.size()) endGame();
+    }
+
+    private void endGame(){
+        // Broadcast end game 
+        for (Agent a : consumers.values()) a.setGameFinished();
+        for (Agent a : producers.values()) a.setGameFinished();
+
+        // Build ranking 
+        ArrayList<Map.Entry<String,Integer>> l  = new ArrayList<Map.Entry<String,Integer>>();
+        for (Map.Entry<String,Consumer> c : consumers.entrySet()){
+            Resource[] res  = c.getValue().getResult();
+            int points = 0;
+            for (Resource r : res)
+                if (r.amount >= goal) points++;
+            l.add(new AbstractMap.SimpleEntry(c.getKey(), new Integer(points)));
         }
+        Collections.sort(l, new Comparator<Map.Entry<String,Integer>>() {
+            public int compare(Map.Entry<String,Integer> e1, Map.Entry<String,Integer> e2){
+                return Integer.compare(e1.getValue(),e2.getValue());
+            }
+        });
+
+        String ranking = ""; 
+        for (Map.Entry<String,Integer> e : l){
+            ranking += e.getKey()+" (score: "+e.getValue()+")\n";
+        }
+        System.out.println(ranking);
+        // TODO broadcast
+
+        // TODO exit clients
+
     }
 
 

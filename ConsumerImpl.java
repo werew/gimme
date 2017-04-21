@@ -115,7 +115,7 @@ implements ConsumerOperations {
             stopObservation();
             Resource req = new Resource();
             req.type = "Dinero"; req.amount = 20;
-            Resource r = getResource_wr("Producer-0",req);
+          //  Resource r = getResource_wr("Producer-0",req);
         }
     } 
 
@@ -389,6 +389,18 @@ implements ConsumerOperations {
                 logmsg("Saw query: "+who+" got "+t.content.type+" from "+t.from,0);
                 break;
         }
+    }
+
+    public Resource[] getResult(){
+        Resource[] r = new Resource[resources.size()];
+        int i = 0;
+        for (Map.Entry<String,Integer> e : resources.entrySet()){
+           Resource t = new Resource();
+           t.type = e.getKey();
+           t.amount = e.getValue();
+           r[i++] = t;
+        }
+        return r;
     }
    
 

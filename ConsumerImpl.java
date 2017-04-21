@@ -219,7 +219,13 @@ implements ConsumerOperations {
         resources.put(r.type, amount);
 
         turnActionEpilogue();
-        if (goalReached()) throw new GameFinished();
+        
+        // Did we finish the game ?
+        if (goalReached()) {
+            coordinator.addWinner(gameID);
+            throw new GameFinished();
+        }
+
         return r;
     }
 

@@ -12,6 +12,7 @@ import Gimme.CoordinatorHelper;
 import Gimme.GameInfos;
 import Gimme.Agent;
 import org.apache.commons.cli.*;
+import java.util.concurrent.locks.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
 
@@ -19,6 +20,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
     HashMap<String,Producer> producers;
     HashMap<String,Consumer> consumers;
     HashMap<String,ArrayList<Producer>> resources;
+    private ArrayList<String> winners;
+    private ReentrantLock lockwinners;
     private int ncons = 0;
     private int nprod = 0;
 
@@ -39,6 +42,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
         consumers = new HashMap<String,Consumer>();
         producers = new HashMap<String,Producer>();
         resources = new HashMap<String,ArrayList<Producer>>();
+        winners = new ArrayList<String>();
+        lockwinners = new ReentrantLock();
     }
 
 
@@ -101,6 +106,14 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
         return new Registration(true,id,"Success");
 
+    }
+
+    /* @brief add consumer to winners */
+    public void addWinner(String id){
+        lockwinners.lock();
+        if (winners.contains(id) == false)
+            winners.add(id);
+        lockwinners.unlock();
     }
 
 

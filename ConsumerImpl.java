@@ -118,11 +118,13 @@ implements ConsumerOperations {
 
 
     /* XXX test function */
-    private void teststrategy1(){
+    private void teststrategy1() throws GameFinished {
         logmsg("teststrat1",0);
         while (true) {
             for (String id : prods.keySet()){
-                Resource r = queryResource_wr(id);
+                Resource req = new Resource();
+                req.type = "Dinero"; req.amount = 2;
+                Resource r = getResource_wr(id,req);
                 logmsg(r.type+" "+r.amount,0);
                 try{Thread.sleep(1000);
                 } catch (Exception e) {}
@@ -192,7 +194,7 @@ implements ConsumerOperations {
 
 
     /* @brief getResource's wrapper */
-    private Resource getResource_wr(String id, Resource request){
+    private Resource getResource_wr(String id, Resource request) throws GameFinished {
         turnActionPrologue();
         
         // Get the agent 
@@ -212,13 +214,20 @@ implements ConsumerOperations {
     
         // Update resource
         Integer amount = resources.get(r.type);
-        amount += r.amount;
+        if (amount == null) amount = new Integer(r.amount);
+        else amount += r.amount;
         resources.put(r.type, amount);
-        
-        // TODO check end cond
 
         turnActionEpilogue();
+        if (goalReached()) throw new GameFinished();
         return r;
+    }
+
+    private boolean goalReached(){
+        for (Integer v : resources.values()){
+           if (v < goal) return false;
+        }
+        return true;
     }
 
     /* @brief queryResource's wrapper */
@@ -261,11 +270,15 @@ implements ConsumerOperations {
      * as a signal that the game has started
      */
     public void start(){
-        switch (strategy) {
-            case 0: teststrategy0();
-                break;
-            case 1: teststrategy1();
-                break;
+        try {
+            switch (strategy) {
+                case 0: teststrategy0();
+                    break;
+                case 1: teststrategy1();
+                    break;
+            }
+        } catch (GameFinished e){
+            logmsg("Game has finished!",0);
         }
     }
 
@@ -458,3 +471,5 @@ implements ConsumerOperations {
         } 
     }
 }
+
+class GameFinished extends Exception {}

@@ -160,8 +160,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
         for (Map.Entry<String,Integer> e : l){
             ranking += e.getKey()+" (score: "+e.getValue()+")\n";
         }
-        System.out.println(ranking);
-        // TODO broadcast
+        broadcastMsg(consumers.values(),ranking,0);
+
 
         // TODO exit clients
 

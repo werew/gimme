@@ -67,8 +67,12 @@ public abstract class AgentImpl extends AgentPOA {
      */
     protected void turnActionPrologue() throws GameFinished {
         if (gamefinished.get()) {
-            turnFinished.signal(); // Unlock playTurn() if necessary
-            throw new GameFinished();
+            try { 
+                turnFinished.signal(); // Unlock playTurn() if necessary
+                throw new GameFinished();
+            } catch (IllegalMonitorStateException e){
+                // Ignore: playTurn doesn't hold the lock 
+            }
         }
 
         if (taketurns == false) return;

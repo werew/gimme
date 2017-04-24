@@ -30,7 +30,6 @@ public class CoordinatorImpl extends CoordinatorPOA {
        stopped once the game has finished   */
     public CorbaManager cm;
 
-
     /* Some infos on the game */
     private int ncons = 0;
     private int nprod = 0;
@@ -185,6 +184,51 @@ public class CoordinatorImpl extends CoordinatorPOA {
                );
     }
 
+    private void initGame(){
+        /* Send start message */
+        broadcastMsg(producers.values(),startmsg,0);
+        broadcastMsg(consumers.values(),startmsg,0);
+
+        /* Build array of producers */ 
+        Producer[] list_producers = new Producer[producers.size()];
+        producers.values().toArray(list_producers);
+
+        /* Build array of producers ids */ 
+        String[] prods_ids = new String[producers.size()];
+        producers.keySet().toArray(prods_ids);
+
+        /* Build array of consumers */
+        Consumer[] list_consumers = new Consumer[consumers.size()];
+        consumers.values().toArray(list_consumers);
+
+        /* Build array of consumers ids */
+        String[] cons_ids = new String[consumers.size()];
+        consumers.keySet().toArray(cons_ids);
+
+        /* Build array of resources */
+        String[] list_resources = new String[resources.size()];
+        resources.keySet().toArray(list_resources);
+
+        /* Initialize consumers  */
+        for (Consumer c : consumers.values()){
+            c.updateProducers(list_producers,prods_ids);
+            c.updateConsumers(list_consumers,cons_ids);
+            c.setGoal(goal, list_resources);
+        }
+    }
+
+    private void gameLoop(){
+        for (Consumer c : consumers.values()) c.start();
+        for (Producer p : producers.values()) p.start();
+        /* TODO: turn vs not turn games  */
+
+        while (gamefinished.get() == false) {
+            for (Consumer c : consumers.values()) c.playTurn();
+            for (Producer p : producers.values()) p.playTurn();
+        }
+    }
+
+
 
     private void launchGame(){
         System.out.println("Launching Game");
@@ -194,38 +238,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
-                broadcastMsg(producers.values(),startmsg,0);
-                broadcastMsg(consumers.values(),startmsg,0);
-
-                /* Send list of producers and opponents to the consumers */
-                Producer[] list_producers = new Producer[producers.size()];
-                producers.values().toArray(list_producers);
-                String[] prods_ids = new String[producers.size()];
-                producers.keySet().toArray(prods_ids);
-
-                Consumer[] list_opponents = new Consumer[consumers.size()];
-                consumers.values().toArray(list_opponents);
-                String[] cons_ids = new String[consumers.size()];
-                consumers.keySet().toArray(cons_ids);
-
-                String[] list_resources = new String[resources.size()];
-                resources.keySet().toArray(list_resources);
-
-                for (Consumer c : consumers.values()){
-                    c.updateProducers(list_producers,prods_ids);
-                    c.updateConsumers(list_opponents,cons_ids);
-                    c.setGoal(goal, list_resources);
-                }
-                
-                for (Consumer c : consumers.values()) c.start();
-                for (Producer p : producers.values()) p.start();
-                /* TODO: turn vs not turn games  */
-                
-                while (gamefinished.get() == false) {
-                    for (Consumer c : consumers.values()) c.playTurn();
-                    for (Producer p : producers.values()) p.playTurn();
-                }
-
+                initGame();
+                gameLoop();                
                 endGame();
                 if (cm != null) cm.stop();
             }

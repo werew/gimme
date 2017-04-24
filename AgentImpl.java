@@ -68,7 +68,10 @@ public abstract class AgentImpl extends AgentPOA {
      * turn action (or transaction) 
      */
     protected void turnActionPrologue() throws GameFinished {
+        if (gamefinished.get() == true) throw new GameFinished();
+
         if (taketurns == false) return;
+
         try {
             turnLock.lock();
             logmsg("0) WAITING TURN",0); 
@@ -145,10 +148,12 @@ public abstract class AgentImpl extends AgentPOA {
         gamefinished.set(true); 
 
         // Unlock blocked prologues 
-        turnLock.lock();
-        isMyTurn = true;
-        turnAvailable.signal();
-        turnLock.unlock();
+        if (taketurns) {
+            turnLock.lock();
+            isMyTurn = true;
+            turnAvailable.signal();
+            turnLock.unlock();
+        }
 
         
         logmsg(result,0);

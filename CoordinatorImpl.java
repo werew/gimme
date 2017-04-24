@@ -132,7 +132,12 @@ public class CoordinatorImpl extends CoordinatorPOA {
             winners.add(id);
         lockwinners.unlock();
 
-        if (winners.size() == consumers.size()) gamefinished.set(true); 
+        if (winners.size() == consumers.size()) {
+            synchronized (gamefinished){
+                 gamefinished.set(true); 
+                 gamefinished.notify();
+            }
+        }
     }
 
     /* @brief add producer to terminated */
@@ -142,7 +147,12 @@ public class CoordinatorImpl extends CoordinatorPOA {
             endprod.add(id);
         lockendprod.unlock();
 
-        if (endprod.size() == producers.size()) gamefinished.set(true); 
+        if (endprod.size() == producers.size()){
+            synchronized (gamefinished){
+                 gamefinished.set(true); 
+                 gamefinished.notify();
+            }
+        }
     }
 
     private void endGame(){
@@ -220,11 +230,21 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private void gameLoop(){
         for (Consumer c : consumers.values()) c.start();
         for (Producer p : producers.values()) p.start();
-        /* TODO: turn vs not turn games  */
 
-        while (gamefinished.get() == false) {
-            for (Consumer c : consumers.values()) c.playTurn();
-            for (Producer p : producers.values()) p.playTurn();
+        if (taketurns == true) {
+            while (gamefinished.get() == false) {
+                for (Consumer c : consumers.values()) c.playTurn();
+                for (Producer p : producers.values()) p.playTurn();
+            }
+        } else {
+            synchronized (gamefinished){
+                while (gamefinished.get() == false) {
+                    try { gamefinished.wait();
+                    } catch (Exception e) {
+                       e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 

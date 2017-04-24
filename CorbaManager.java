@@ -41,12 +41,15 @@ public class CorbaManager {
         orb.run();
     }
 
+    public void stop(){
+        orb.shutdown(true);
+    }   
+
     public CorbaManager(String host, String port) throws UserException {
         initORB(host,port);
         initRootPOA();
         refprelude = "corbaname::" + host + ":" + port + "#";
     }
-
 
 }
 

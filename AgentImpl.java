@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.*;
 public abstract class AgentImpl extends AgentPOA {
 
     private Date date;
+    public CorbaManager cm;
+    public ThreadRun thread;
 
     /* Agent's game identifier */
     protected String gameID;
@@ -66,19 +68,13 @@ public abstract class AgentImpl extends AgentPOA {
      * turn action (or transaction) 
      */
     protected void turnActionPrologue() throws GameFinished {
-        if (gamefinished.get()) {
-            try { 
-                turnFinished.signal(); // Unlock playTurn() if necessary
-                throw new GameFinished();
-            } catch (IllegalMonitorStateException e){
-                // Ignore: playTurn doesn't hold the lock 
-            }
-        }
-
         if (taketurns == false) return;
         try {
             turnLock.lock();
+            logmsg("0) WAITING TURN",0); 
             while (isMyTurn == false) turnAvailable.await();
+            if (gamefinished.get() == true) throw new GameFinished();
+            logmsg("1) INSIDE TURN",0); 
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,10 +92,12 @@ public abstract class AgentImpl extends AgentPOA {
         try {
             isMyTurn = false; 
             turnFinished.signal(); 
+            logmsg("2) ENDING TURN",0); 
         } catch (Exception e) {
             e.printStackTrace();
         } finally { // Ensure unlock
             turnLock.unlock();
+            logmsg("3) OUTSIDE TURN",0); 
         }
     }
 
@@ -112,26 +110,39 @@ public abstract class AgentImpl extends AgentPOA {
      * TODO return ??
      */
     public boolean playTurn(){
-        logmsg("--------start",0); 
-        if (gamefinished.get()) {logmsg("----------stop fin",0); return true;}
+        logmsg("                <- PLAY",0);
+        if (gamefinished.get()) return true;
+        logmsg("            OK  <- PLAY",0);
+
         try {
             turnLock.lock();
-            while (isMyTurn == true) turnFinished.await();
             isMyTurn = true;
-            logmsg("~~~~~~ body",0);
             turnAvailable.signal();
+            while (isMyTurn == true) turnFinished.await();
         } catch (Exception e){
             e.printStackTrace();
         } finally { // Ensure unlock
             turnLock.unlock();
-            logmsg("-----------stop",0);
         }
+        logmsg("           DONE -> PLAY",0);
         return true;
     }
 
 
-    public void setGameFinished(){
-        gamefinished.set(true);
+    public void endGame(String result){
+        // Stop current agent from playing
+        gamefinished.set(true); 
+
+        // Unlock prologues 
+        turnLock.lock();
+        isMyTurn = true;
+        turnAvailable.signal();
+        turnLock.unlock();
+
+        
+        logmsg(result,0);
+        logmsg("--------------------",0);
+        thread.setJoinable();
     }
 
 

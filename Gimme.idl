@@ -38,7 +38,7 @@ module Gimme
     oneway void start() ;
     boolean playTurn() ;
     Resource getResource(in Resource request) ;
-    void setGameFinished();
+    oneway void endGame(in string results);
   } ; 
 
 

@@ -3,21 +3,25 @@ import org.omg.PortableServer.* ;
 import java.util.* ;
 import java.io.* ;
 import org.omg.CosNaming.* ;
+import java.util.concurrent.atomic.*;
 
 class ThreadRun
   extends Thread
 {
-  private ORB orb ;
-  public ThreadRun(ORB orb)
+  private CorbaManager cm;
+  private AtomicBoolean joinable;
+
+  public ThreadRun(CorbaManager cm)
   {
-    this.orb = orb ;
+    this.cm = cm;
+    joinable = new AtomicBoolean(false);
   }
   
   public void run()
   {
     try
     {
-      orb.run() ;
+      cm.runORB() ;
     }
     catch (Exception e)
     {
@@ -27,8 +31,27 @@ class ThreadRun
     } 
   }
   
-  public void shutdown()
-  {
-    orb.shutdown(false) ;
+  public void shutdown(){
+    cm.stop();
   }
+
+  public synchronized void setJoinable(){
+    synchronized (joinable) {
+        joinable.set(true);
+        joinable.notify();
+    }
+ }
+
+ public void waitJoinable(){
+    while (joinable.get() == false){
+        synchronized (joinable) {
+            try { joinable.wait(); 
+            } catch (Exception e){
+                e.printStackTrace(System.out);
+            }
+        }
+    }
+ }
+
+
 }

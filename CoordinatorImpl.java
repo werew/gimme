@@ -14,6 +14,7 @@ import Gimme.GameInfos;
 import Gimme.Agent;
 import org.apache.commons.cli.*;
 import java.util.concurrent.locks.*;
+import java.util.concurrent.atomic.*;
 
 public class CoordinatorImpl extends CoordinatorPOA {
 
@@ -24,6 +25,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     private int ncons = 0;
     private int nprod = 0;
+    private AtomicBoolean eg;
+    public CorbaManager cm;
 
     /* End game */
     private ArrayList<String> winners;
@@ -52,6 +55,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         lockwinners = new ReentrantLock();
         endprod = new ArrayList<String>();
         lockendprod = new ReentrantLock();
+        eg = new AtomicBoolean(false);
     }
 
 
@@ -123,7 +127,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             winners.add(id);
         lockwinners.unlock();
 
-        if (winners.size() == consumers.size()) endGame();
+        if (winners.size() == consumers.size()) eg.set(true); 
     }
 
     /* @brief add producer to terminated */
@@ -133,13 +137,12 @@ public class CoordinatorImpl extends CoordinatorPOA {
             endprod.add(id);
         lockendprod.unlock();
 
-        if (endprod.size() == producers.size()) endGame();
+        if (endprod.size() == producers.size()) eg.set(true); 
     }
 
     private void endGame(){
-        // Broadcast end game 
-        for (Agent a : consumers.values()) a.setGameFinished();
-        for (Agent a : producers.values()) a.setGameFinished();
+
+        System.out.println("End game");
 
         // Build ranking 
         ArrayList<Map.Entry<String,Integer>> l  = new ArrayList<Map.Entry<String,Integer>>();
@@ -160,10 +163,11 @@ public class CoordinatorImpl extends CoordinatorPOA {
         for (Map.Entry<String,Integer> e : l){
             ranking += e.getKey()+" (score: "+e.getValue()+")\n";
         }
-        broadcastMsg(consumers.values(),ranking,0);
 
+        for (Agent a : consumers.values()) a.endGame(ranking);
+        for (Agent a : producers.values()) a.endGame(ranking);
 
-        // TODO exit clients
+        
 
     }
 
@@ -209,17 +213,19 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 
                 for (Consumer c : consumers.values()) c.start();
                 for (Producer p : producers.values()) p.start();
-
-                while (true) {
+                /* TODO: turn vs not turn games  */
+                
+                while (eg.get() == false) {
                     for (Consumer c : consumers.values()) c.playTurn();
                     for (Producer p : producers.values()) p.playTurn();
                 }
+
+                endGame();
+                cm.stop();
+                
                     
             }
         }, coutdown * 1000);
-
-        /* TODO: for every consumer */
-        // c.start(producers, consumers);
         
     }
 
@@ -291,6 +297,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             cm.bindName("Coordinator",href);
 
             System.out.println("Coordinator ready and waiting ...") ;
+            coord.cm = cm;
             cm.runORB() ;
 
         } catch (ParseException e) {

@@ -112,10 +112,17 @@ implements ProducerOperations {
         total_produced += p;
 
         reslock.unlock();
+
+        // Did we finish  ?
+        if (max_total <= total_produced) {
+            gamefinished.set(true);   // Prevent agent from playing
+            coordinator.addTermProd(gameID); // Signal termination
+        }
+
         turnActionEpilogue();
 
+        // If we finished, quit the game loop
         if (max_total <= total_produced) {
-            coordinator.addTermProd(gameID);
             throw new GameFinished();
         }
     }
@@ -256,6 +263,7 @@ implements ProducerOperations {
 
             /* Create producer and tie to POA */
             ProducerImpl p = new ProducerImpl(argz[2]) ;
+            p.cm = cm;
             ProducerPOATie tie = new ProducerPOATie(p, cm.rootPOA);
             p.myprod = tie._this(cm.orb);
 
@@ -278,7 +286,11 @@ implements ProducerOperations {
             p.joinCoordinator(coord,id);
 
             /* Run server */
-            cm.runORB();
+            p.thread = new ThreadRun(cm);
+            p.thread.start();
+            p.thread.waitJoinable();
+p.logmsg("joinable",0);
+            p.thread.shutdown();
 
         } catch (ParseException e) {
             System.out.println("\nERROR: "+e.getMessage()+"\n");

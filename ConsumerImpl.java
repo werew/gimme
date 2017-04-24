@@ -221,11 +221,17 @@ implements ConsumerOperations {
         else amount += r.amount;
         resources.put(r.type, amount);
 
-        turnActionEpilogue();
-        
         // Did we finish the game ?
         if (goalReached()) {
-            coordinator.addWinner(gameID);
+            gamefinished.set(true);        // Prevent this agent from playing
+            coordinator.addWinner(gameID); // Signal winner
+            logmsg("--> :) - FINISHED ",0);
+        }
+
+        turnActionEpilogue();
+
+        // If we finished, quit the game loop
+        if (gamefinished.get() == true){
             throw new GameFinished();
         }
 
@@ -287,7 +293,6 @@ implements ConsumerOperations {
                     break;
             }
         } catch (GameFinished gf){
-            setGameFinished();
             logmsg("Game has finished!",0);
         }
     }
@@ -465,6 +470,7 @@ implements ConsumerOperations {
 
             /* Create a server */
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
+            consumer.cm = cm;
 
             /* Create corba object */ 
             ConsumerPOATie tie = new ConsumerPOATie(consumer, cm.rootPOA);
@@ -479,9 +485,15 @@ implements ConsumerOperations {
                 printUsage(options, 1);
             }
 
-
             /* Run server */
-            cm.runORB();
+            consumer.thread = new ThreadRun(cm);
+            consumer.thread.start();
+            consumer.thread.waitJoinable();
+            consumer.logmsg("# joinable",0);
+            consumer.thread.shutdown();
+            consumer.logmsg("# ended",0);
+
+            
 
         } catch (ParseException e) {
             System.out.println("\nERROR: "+e.getMessage()+"\n");
@@ -491,6 +503,7 @@ implements ConsumerOperations {
             System.out.println("ERROR : " + e) ;
             e.printStackTrace(System.out) ;
         } 
+        System.out.println("# very ended");
     }
 }
 

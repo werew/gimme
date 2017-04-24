@@ -19,9 +19,9 @@ import java.util.concurrent.atomic.*;
 
 public abstract class AgentImpl extends AgentPOA {
 
-    private Date date;
-    public CorbaManager cm;
-    public ThreadRun thread;
+    private Date date; // To timestamp the transactions
+    public ThreadRun thread; // Orb's thread. If not null this will be signaled
+                             // as joinable when the game has finished
 
     /* Agent's game identifier */
     protected String gameID;
@@ -73,7 +73,13 @@ public abstract class AgentImpl extends AgentPOA {
             turnLock.lock();
             logmsg("0) WAITING TURN",0); 
             while (isMyTurn == false) turnAvailable.await();
-            if (gamefinished.get() == true) throw new GameFinished();
+
+            // Check if game has finished while waiting
+            if (gamefinished.get() == true) {
+                turnLock.unlock();
+                throw new GameFinished();
+            }
+
             logmsg("1) INSIDE TURN",0); 
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,13 +117,18 @@ public abstract class AgentImpl extends AgentPOA {
      */
     public boolean playTurn(){
         logmsg("                <- PLAY",0);
+        // Return immediatly if agent has finished the game
         if (gamefinished.get()) return true;
         logmsg("            OK  <- PLAY",0);
 
         try {
             turnLock.lock();
+
+            // Offer a new turn
             isMyTurn = true;
             turnAvailable.signal();
+
+            // Wait until turn is finished
             while (isMyTurn == true) turnFinished.await();
         } catch (Exception e){
             e.printStackTrace();
@@ -133,7 +144,7 @@ public abstract class AgentImpl extends AgentPOA {
         // Stop current agent from playing
         gamefinished.set(true); 
 
-        // Unlock prologues 
+        // Unlock blocked prologues 
         turnLock.lock();
         isMyTurn = true;
         turnAvailable.signal();
@@ -142,7 +153,7 @@ public abstract class AgentImpl extends AgentPOA {
         
         logmsg(result,0);
         logmsg("--------------------",0);
-        thread.setJoinable();
+        if (thread != null) thread.setJoinable();
     }
 
 

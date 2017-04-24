@@ -21,22 +21,28 @@ public class CoordinatorImpl extends CoordinatorPOA {
     /* Logged consumers and producers */
     HashMap<String,Producer> producers;
     HashMap<String,Consumer> consumers;
+
+    /* Resource to Producers mapping */
     HashMap<String,ArrayList<Producer>> resources;
 
-    private int ncons = 0;
-    private int nprod = 0;
-    private AtomicBoolean eg;
+    /* CorbaManager containing the orb of the
+       current game. If not null this will be
+       stopped once the game has finished   */
     public CorbaManager cm;
 
-    /* End game */
+
+    /* Some infos on the game */
+    private int ncons = 0;
+    private int nprod = 0;
+    private boolean taketurns = false;
+    private boolean running = false;
+    private AtomicBoolean gamefinished;
+
+    /* End game infos */
     private ArrayList<String> winners;
     private Lock lockwinners;
     private ArrayList<String> endprod;
     private Lock lockendprod;
-
-    /* Some infos on the game */
-    private boolean taketurns = false;
-    private boolean running = false;
 
     /* Some game values */
     int goal;
@@ -55,7 +61,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         lockwinners = new ReentrantLock();
         endprod = new ArrayList<String>();
         lockendprod = new ReentrantLock();
-        eg = new AtomicBoolean(false);
+        gamefinished = new AtomicBoolean(false);
     }
 
 
@@ -127,7 +133,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             winners.add(id);
         lockwinners.unlock();
 
-        if (winners.size() == consumers.size()) eg.set(true); 
+        if (winners.size() == consumers.size()) gamefinished.set(true); 
     }
 
     /* @brief add producer to terminated */
@@ -137,7 +143,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
             endprod.add(id);
         lockendprod.unlock();
 
-        if (endprod.size() == producers.size()) eg.set(true); 
+        if (endprod.size() == producers.size()) gamefinished.set(true); 
     }
 
     private void endGame(){
@@ -215,15 +221,13 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 for (Producer p : producers.values()) p.start();
                 /* TODO: turn vs not turn games  */
                 
-                while (eg.get() == false) {
+                while (gamefinished.get() == false) {
                     for (Consumer c : consumers.values()) c.playTurn();
                     for (Producer p : producers.values()) p.playTurn();
                 }
 
                 endGame();
-                cm.stop();
-                
-                    
+                if (cm != null) cm.stop();
             }
         }, coutdown * 1000);
         

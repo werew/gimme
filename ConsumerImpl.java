@@ -470,7 +470,6 @@ implements ConsumerOperations {
 
             /* Create a server */
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
-            consumer.cm = cm;
 
             /* Create corba object */ 
             ConsumerPOATie tie = new ConsumerPOATie(consumer, cm.rootPOA);
@@ -493,7 +492,6 @@ implements ConsumerOperations {
             consumer.thread.shutdown();
             consumer.logmsg("# ended",0);
 
-            
 
         } catch (ParseException e) {
             System.out.println("\nERROR: "+e.getMessage()+"\n");

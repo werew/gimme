@@ -25,7 +25,7 @@ implements ProducerOperations {
     
     // Resource produced 
     Resource resource;
-    private Lock reslock; // to regulate concurrent access 
+    private Lock reslock; // to regulate concurrent access to the resource
 
     // This values should be modified only before
     // the game has started  
@@ -263,7 +263,6 @@ implements ProducerOperations {
 
             /* Create producer and tie to POA */
             ProducerImpl p = new ProducerImpl(argz[2]) ;
-            p.cm = cm;
             ProducerPOATie tie = new ProducerPOATie(p, cm.rootPOA);
             p.myprod = tie._this(cm.orb);
 

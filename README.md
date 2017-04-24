@@ -8,9 +8,9 @@ TODO
                           (DONE: finish when all producers are done)
                           (DONE: make ranking)
                           (DONE: signal end producer)
-                          (broadcast ranking)
-                          (exit clients)
-                          (exit coordinator)
+                          (DONE: broadcast ranking)
+                          (DONE: exit clients)
+                          (DONE: exit coordinator)
                           (TODO: finish cond based on resource availability)
 
 - Implement human cli (!)

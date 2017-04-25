@@ -132,6 +132,13 @@ implements ConsumerOperations {
                 try{Thread.sleep(1000);
                 } catch (Exception e) {}
             }
+            Resource req = new Resource();
+            req.type = "Dinero"; req.amount = 10;
+            String[] c = new String[cons.size()];
+            cons.keySet().toArray(c);
+            Resource r = getResource_wr(c[0],req);
+            logmsg("stolen :"+r.type+" "+r.amount,0);
+            
         }
     } 
 
@@ -273,8 +280,16 @@ implements ConsumerOperations {
      * @see ProducerImpl.getResource
      */
     public Resource getResource(Resource request){
-        // TODO
-        return new Resource("Test",0);
+        if (resources.containsKey(request.type) == false || 
+            resources.get(request.type) < request.amount){
+            request.amount = 0;
+            return request;
+        }
+
+        Integer a  = resources.get(request.type);
+        resources.put(request.type, a - request.amount);
+
+        return request;
     }
 
 
@@ -381,8 +396,8 @@ implements ConsumerOperations {
     public void seeTransaction(String who, Transaction t){
         switch (t.type) {
             case Common.REQUEST:
-                if (cons.containsKey(t.from)){
-                    // TODO Stolen
+                if (cons.containsKey(t.from) ){ // TODO add check own id
+                    // TODO Stolen 
                     return;
                 } else if (t.content.amount < 0){
                    addToView(t.content.type,t.from); 

@@ -294,6 +294,7 @@ implements ConsumerOperations {
             }
         } catch (GameFinished gf){
             logmsg("Game has finished!",0);
+            syncNotify();
         }
     }
 

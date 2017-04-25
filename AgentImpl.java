@@ -38,6 +38,7 @@ public abstract class AgentImpl extends AgentPOA {
 
     /* Game finished ? */
     protected AtomicBoolean gamefinished;
+    protected AtomicBoolean syncend;
 
 
     /* @brief ctor */
@@ -45,6 +46,7 @@ public abstract class AgentImpl extends AgentPOA {
         transactions = new HashMap<String,Transaction>();
         date = new Date();
         gamefinished = new AtomicBoolean(false); 
+        syncend = new AtomicBoolean(false); 
     }
 
     /**
@@ -68,7 +70,11 @@ public abstract class AgentImpl extends AgentPOA {
      * turn action (or transaction) 
      */
     protected void turnActionPrologue() throws GameFinished {
-        if (gamefinished.get() == true) throw new GameFinished();
+        logmsg("~~~ start action",0); 
+        if (gamefinished.get() == true) {
+         logmsg("~~~ throw finished",0); 
+         throw new GameFinished();
+        }
 
         if (taketurns == false) return;
 
@@ -97,6 +103,7 @@ public abstract class AgentImpl extends AgentPOA {
      * turn action (or transaction)
      */
     protected void turnActionEpilogue(){
+        logmsg("~~~ end action",0); 
         if (taketurns == false) return;
         try {
             isMyTurn = false; 
@@ -142,6 +149,29 @@ public abstract class AgentImpl extends AgentPOA {
         return true;
     }
 
+
+    protected void syncNotify(){
+        synchronized (syncend) {
+            syncend.set(true);
+            try {
+                syncend.notify();  
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        } 
+    }
+    public void syncEnd(){
+        // Stop current agent from playing
+        try {
+            synchronized (syncend){
+                gamefinished.set(true); 
+                while (syncend.get() == false)
+                    syncend.wait();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public void endGame(String result){
         // Stop current agent from playing

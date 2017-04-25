@@ -66,8 +66,10 @@ implements ProducerOperations {
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
                     public void run() {
-                       try { produce(); }
-                       catch (GameFinished gf){}
+                       try { produce(); 
+                       } catch (GameFinished gf){
+                            syncNotify();
+                       }
                     }
                 }, 0, frequency_ms);
             }
@@ -88,6 +90,7 @@ implements ProducerOperations {
                 }
             }
         } catch (GameFinished gf){
+            syncNotify();
         }
     }
 

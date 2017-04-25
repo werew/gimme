@@ -316,14 +316,13 @@ implements ConsumerOperations {
 
     /**
      * @brief Set the list of Consumers of the game
-     * TODO modify in setConsumers
      * This method should be used by the Coordinator to inform
      * the Consumer about the other Consumers who are 
      * participating to the game
      * @param consumers Array of the consumers
      * @param ids Array containing the ids of the consumers
      */
-    public void updateConsumers(Consumer[] consumers, String[] ids){
+    public void setConsumers(Consumer[] consumers, String[] ids){
         cons  = new HashMap<String,Consumer>();    
         for (int i = 0; i < consumers.length; i++){
             if (ids[i].equals(gameID)) continue;
@@ -335,13 +334,12 @@ implements ConsumerOperations {
 
     /**
      * @brief Set the list of Producers of the game
-     * TODO modify in setProducers
      * This method should be used by the Coordinator to inform the
      * Consumer about which Producers are participating to the game
      * @param consumers Array of the consumers
      * @param ids Array containing the ids of the consumers
      */
-    public void updateProducers(Producer[] producers, String[] ids){
+    public void setProducers(Producer[] producers, String[] ids){
         prods = new HashMap<String,Producer>();    
         for (int i = 0; i < producers.length; i++){
             logmsg("Put producer "+ids[i],0);

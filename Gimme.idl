@@ -59,8 +59,8 @@ module Gimme
     void removeObserver(in string id);
     void seeTransaction(in string who, in Transaction t);
 
-    void updateProducers(in TabProd producers, in TabIDs ids) ;
-    void updateConsumers(in TabCons consumers, in TabIDs ids) ;
+    void setProducers(in TabProd producers, in TabIDs ids) ;
+    void setConsumers(in TabCons consumers, in TabIDs ids) ;
     void setGoal(in long goal, in TabIDs resources);
 
     TabRes getResult();

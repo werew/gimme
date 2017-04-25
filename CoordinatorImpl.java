@@ -226,8 +226,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
         /* Initialize consumers  */
         for (Consumer c : consumers.values()){
-            c.updateProducers(list_producers,prods_ids);
-            c.updateConsumers(list_consumers,cons_ids);
+            c.setProducers(list_producers,prods_ids);
+            c.setConsumers(list_consumers,cons_ids);
             c.setGoal(goal, list_resources);
         }
     }

@@ -168,6 +168,7 @@ public abstract class AgentImpl extends AgentPOA {
                 while (syncend.get() == false)
                     syncend.wait();
             }
+            logmsg("Sync end",0);
         } catch (Exception e){
             e.printStackTrace();
         }

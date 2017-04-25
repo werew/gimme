@@ -24,6 +24,7 @@ implements ProducerOperations {
     Coordinator coordinator; 
     
     // Resource produced 
+    Timer timer;
     Resource resource;
     private Lock reslock; // to regulate concurrent access to the resource
 
@@ -63,11 +64,12 @@ implements ProducerOperations {
             if (taketurns) {
                 turnHandler();
             } else {
-                Timer timer = new Timer();
+                timer = new Timer();
                 timer.schedule(new TimerTask() {
                     public void run() {
                        try { produce(); 
                        } catch (GameFinished gf){
+                            this.cancel();
                             syncNotify();
                        }
                     }

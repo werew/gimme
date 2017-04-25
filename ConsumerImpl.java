@@ -111,11 +111,17 @@ implements ConsumerOperations {
         logmsg("teststrat0",0);
         while (true) {
             startObservation();
-            for (int i = 0; i < 3; i++) keepState();
+            if (taketurns == false){
+                try{Thread.sleep(2000);
+                } catch (Exception e) {}
+            } else {
+                for (int i = 0; i < 3; i++) keepState();
+            }
             stopObservation();
             Resource req = new Resource();
             req.type = "Dinero"; req.amount = 20;
-          //  Resource r = getResource_wr("Producer-0",req);
+            Resource r = getResource_wr("Producer-0",req);
+            logmsg(r.type+" "+r.amount,0);
         }
     } 
 
@@ -396,8 +402,8 @@ implements ConsumerOperations {
     public void seeTransaction(String who, Transaction t){
         switch (t.type) {
             case Common.REQUEST:
-                if (cons.containsKey(t.from) ){ // TODO add check own id
-                    // TODO Stolen 
+                if (cons.containsKey(t.from) || gameID.equals(t.from)){
+                    logmsg("!!!!!!!!! A THIEF !!!!!!!!!!!!",0);
                     return;
                 } else if (t.content.amount < 0){
                    addToView(t.content.type,t.from); 

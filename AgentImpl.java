@@ -244,6 +244,7 @@ public abstract class AgentImpl extends AgentPOA {
         Transaction t = new Transaction();
         t.type     = type;
         t.from     = from;
+        t.to       = gameID;
         t.content  = content;
 
         synchronized (this){

@@ -26,6 +26,7 @@ module Gimme
     string id;
     long long timestamp;
     long type;        // Request | Query | Production
+    string to;
     string from;     
     Resource content; // If type = Query, this is the answer
                       // For failed requests the amount is 0

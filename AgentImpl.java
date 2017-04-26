@@ -29,7 +29,7 @@ public abstract class AgentImpl extends AgentPOA {
     protected String gameID;
 
     /* Transactions carried out */
-    protected ConcurrentHashMap<String,Transaction> transactions;
+    protected ArrayList<Transaction> transactions;
 
     /* Turn management */
     protected boolean taketurns = false;
@@ -45,7 +45,7 @@ public abstract class AgentImpl extends AgentPOA {
 
     /* @brief ctor */
     public AgentImpl(){
-        transactions = new ConcurrentHashMap<String,Transaction>();
+        transactions = new ArrayList<Transaction>();
         date = new Date();
         gamefinished = new AtomicBoolean(false); 
         syncend = new AtomicBoolean(false); 
@@ -165,7 +165,7 @@ public abstract class AgentImpl extends AgentPOA {
 
     public Transaction[] getHistory(){
         Transaction[] hst = new Transaction[transactions.size()];
-        transactions.values().toArray(hst);
+        transactions.toArray(hst);
         return hst;
     }
 
@@ -247,10 +247,10 @@ public abstract class AgentImpl extends AgentPOA {
         t.to       = gameID;
         t.content  = content;
 
-        synchronized (this){
+        synchronized (transactions){
             t.timestamp = date.getTime();
             t.id = gameID+"-"+transactions.size();
-            transactions.put(t.id,t);
+            transactions.add(t);
         }
         return t;
     }

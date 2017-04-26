@@ -14,8 +14,10 @@ import Gimme.AgentPOA;
 import Gimme.AgentHelper;
 import Gimme.GameInfos;
 import org.apache.commons.cli.*;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 import java.util.concurrent.atomic.*;
+import java.lang.Thread;
 
 public abstract class AgentImpl extends AgentPOA {
 
@@ -27,7 +29,7 @@ public abstract class AgentImpl extends AgentPOA {
     protected String gameID;
 
     /* Transactions carried out */
-    protected HashMap<String,Transaction> transactions;
+    protected ConcurrentHashMap<String,Transaction> transactions;
 
     /* Turn management */
     protected boolean taketurns = false;
@@ -43,7 +45,7 @@ public abstract class AgentImpl extends AgentPOA {
 
     /* @brief ctor */
     public AgentImpl(){
-        transactions = new HashMap<String,Transaction>();
+        transactions = new ConcurrentHashMap<String,Transaction>();
         date = new Date();
         gamefinished = new AtomicBoolean(false); 
         syncend = new AtomicBoolean(false); 
@@ -160,6 +162,7 @@ public abstract class AgentImpl extends AgentPOA {
             }
         } 
     }
+
     public void syncEnd(){
         // Stop current agent from playing
         try {

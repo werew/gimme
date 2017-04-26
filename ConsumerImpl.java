@@ -135,15 +135,18 @@ implements ConsumerOperations {
                 req.type = "Dinero"; req.amount = 10;
                 Resource r = getResource_wr(id,req);
                 logmsg(r.type+" "+r.amount,0);
-                try{Thread.sleep(1000);
+//                keepState();
+                try{Thread.sleep(100);
                 } catch (Exception e) {}
             }
+/*
             Resource req = new Resource();
             req.type = "Dinero"; req.amount = 10;
             String[] c = new String[cons.size()];
             cons.keySet().toArray(c);
-            Resource r = getResource_wr(c[0],req);
-            logmsg("stolen :"+r.type+" "+r.amount,0);
+*/
+        //    Resource r = getResource_wr(c[0],req);
+        //   logmsg("stolen :"+r.type+" "+r.amount,0);
             
         }
     } 
@@ -229,10 +232,7 @@ implements ConsumerOperations {
             cons.get(c).seeTransaction(gameID,t);
     
         // Update resource
-        Integer amount = resources.get(r.type);
-        if (amount == null) amount = new Integer(r.amount);
-        else amount += r.amount;
-        resources.put(r.type, amount);
+        updateResource(r.type,r.amount);
 
         // Did we finish the game ?
         if (goalReached()) {
@@ -271,6 +271,13 @@ implements ConsumerOperations {
         return r;
     }
 
+    synchronized private void updateResource(String type, int add){
+        Integer amount  = resources.get(type);
+        if (amount == null) amount = new Integer(add);
+        else amount += add;
+        resources.put(type, amount);
+    }
+
 
     /*************** Consumer IDL's interface *****************
      * Interface: the following function implements 
@@ -292,8 +299,7 @@ implements ConsumerOperations {
             return request;
         }
 
-        Integer a  = resources.get(request.type);
-        resources.put(request.type, a - request.amount);
+        updateResource(request.type, -request.amount);
 
         return request;
     }
@@ -314,8 +320,8 @@ implements ConsumerOperations {
                     break;
             }
         } catch (GameFinished gf){
-            logmsg("Game has finished!",0);
             syncNotify();
+            logmsg("Game has finished!",0);
         }
     }
 

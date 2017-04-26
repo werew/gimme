@@ -408,11 +408,10 @@ implements ConsumerOperations {
     public void seeTransaction(String who, Transaction t){
         switch (t.type) {
             case Common.REQUEST:
-                if (cons.containsKey(t.from) || gameID.equals(t.from)){
-                    logmsg("!!!!!!!!! A THIEF !!!!!!!!!!!!",0);
-                    return;
-                } else if (t.content.amount < 0){
-                   addToView(t.content.type,t.from); 
+                if (prods.containsKey(t.from) && 
+                    t.content.amount < 0){
+                    // Update view
+                    addToView(t.content.type,t.from); 
                 }
                 break;
             case Common.QUERY:

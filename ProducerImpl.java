@@ -267,7 +267,8 @@ implements ProducerOperations {
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);
 
             /* Create producer and tie to POA */
-            ProducerImpl p = new ProducerImpl(argz[2]) ;
+            ProducerImpl p = new ProducerImpl(argz[2], 
+                cmd.hasOption('s') ? Integer.parseInt(cmd.getOptionValue('s')) : 0);
             ProducerPOATie tie = new ProducerPOATie(p, cm.rootPOA);
             p.myprod = tie._this(cm.orb);
 

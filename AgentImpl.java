@@ -163,6 +163,12 @@ public abstract class AgentImpl extends AgentPOA {
         } 
     }
 
+    public Transaction[] getHistory(){
+        Transaction[] hst = new Transaction[transactions.size()];
+        transactions.values().toArray(hst);
+        return hst;
+    }
+
     public void syncEnd(){
         // Stop current agent from playing
         try {

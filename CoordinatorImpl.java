@@ -160,9 +160,18 @@ public class CoordinatorImpl extends CoordinatorPOA {
         System.out.println("End game");
 
         if (taketurns == false){
-            for (Agent a : consumers.values()) a.syncEnd();
-            for (Agent a : producers.values()) a.syncEnd();
+            for (Agent a : consumers.values()) {
+	    	a.syncEnd();
+		System.out.println("Synced ");
+	    }
+            for (Agent a : producers.values()) {
+		a.syncEnd();
+		System.out.println("Synced ");
+	    }
         }
+
+        for (Agent a : consumers.values()) a.getHistory();
+        for (Agent a : producers.values()) a.getHistory();
 
         // Build ranking 
         ArrayList<Map.Entry<String,Integer>> l  = new ArrayList<Map.Entry<String,Integer>>();

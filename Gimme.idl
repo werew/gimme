@@ -31,6 +31,7 @@ module Gimme
                       // For failed requests the amount is 0
   } ;
 
+  typedef sequence<Transaction> TabTrans;
   
   interface Agent
   {
@@ -40,6 +41,7 @@ module Gimme
     Resource getResource(in Resource request) ;
     void syncEnd();
     oneway void endGame(in string results);
+    TabTrans getHistory();
   } ; 
 
 

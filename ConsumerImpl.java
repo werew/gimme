@@ -2,6 +2,7 @@ import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 import java.io.*;
 import java.io.IOException;
 import org.omg.CosNaming.*;
@@ -26,6 +27,7 @@ implements ConsumerOperations {
 
     /* My game infos */
     private ConcurrentHashMap<String,Integer> resources;
+    private AtomicBoolean protect_mode;
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private ConcurrentSkipListSet<String> observers;
     private int strategy = 0;
@@ -51,6 +53,7 @@ implements ConsumerOperations {
         if (human) this.setHuman();
         resources = new ConcurrentHashMap<String,Integer>();	
         observers = new ConcurrentSkipListSet<String>();
+        protect_mode = new AtomicBoolean(false);
         this.strategy = strategy;
     }
 
@@ -183,6 +186,18 @@ implements ConsumerOperations {
         turnActionEpilogue();
     }
 
+    private void enterProtectedMode() throws GameFinished {
+        turnActionPrologue();
+        protect_mode.set(true);
+        turnActionEpilogue();
+    }
+
+    private void leaveProtectedMode() throws GameFinished {
+        turnActionPrologue();
+        protect_mode.set(false);
+        turnActionEpilogue();
+    }
+
 
     /**
      * @brief update view
@@ -293,6 +308,11 @@ implements ConsumerOperations {
      * @see ProducerImpl.getResource
      */
     public Resource getResource(Resource request){
+        if (protect_mode.get()) {
+            request.amount = - (goal/10);
+            return request;
+        }
+
         if (resources.containsKey(request.type) == false || 
             resources.get(request.type) < request.amount){
             request.amount = 0;

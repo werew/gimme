@@ -11,6 +11,7 @@ import Gimme.Coordinator;
 import Gimme.CoordinatorPOA;
 import Gimme.CoordinatorHelper;
 import Gimme.GameInfos;
+import Gimme.Transaction;
 import Gimme.Agent;
 import org.apache.commons.cli.*;
 import java.util.concurrent.locks.*;
@@ -36,6 +37,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private boolean taketurns = false;
     private boolean running = false;
     private AtomicBoolean gamefinished;
+    private ArrayList<Transaction> transactions;
 
     /* End game infos */
     private ArrayList<String> winners;
@@ -45,7 +47,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
 
     /* Some game values */
     int goal;
-    final int coutdown = 5;
+    final int coutdown = 1;
     final String fullmsg  = "Game is full";
     final String readymsg = "Game will start in 5 seconds!";
     final String startmsg = "Game has started!";
@@ -61,6 +63,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         endprod = new ArrayList<String>();
         lockendprod = new ReentrantLock();
         gamefinished = new AtomicBoolean(false);
+        transactions = new ArrayList<Transaction>();
     }
 
 
@@ -155,23 +158,43 @@ public class CoordinatorImpl extends CoordinatorPOA {
         }
     }
 
+    private void buildGameModel(){
+        // Get all transactions 
+        for (Agent a : consumers.values()) {
+            Transaction[] t = a.getHistory();
+            transactions.addAll(Arrays.asList(t));
+        }
+        for (Agent a : producers.values()) {
+            Transaction[] t = a.getHistory();
+            transactions.addAll(Arrays.asList(t));
+        }
+
+        // Sort transactions
+        Collections.sort(transactions, new Comparator<Transaction> () {
+            public int compare(Transaction t1, Transaction t2){
+                return t1.timestamp > t2.timestamp;
+            }
+        });
+
+
+    }
+
     private void endGame(){
 
         System.out.println("End game");
 
         if (taketurns == false){
             for (Agent a : consumers.values()) {
-	    	a.syncEnd();
-		System.out.println("Synced ");
-	    }
+                a.syncEnd();
+                System.out.println("Synced ");
+            }
             for (Agent a : producers.values()) {
-		a.syncEnd();
-		System.out.println("Synced ");
-	    }
+                a.syncEnd();
+                System.out.println("Synced ");
+            }
         }
 
-        for (Agent a : consumers.values()) a.getHistory();
-        for (Agent a : producers.values()) a.getHistory();
+        buildGameModel();
 
         // Build ranking 
         ArrayList<Map.Entry<String,Integer>> l  = new ArrayList<Map.Entry<String,Integer>>();

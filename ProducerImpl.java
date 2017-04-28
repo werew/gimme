@@ -124,7 +124,12 @@ implements ProducerOperations {
             coordinator.addTermProd(gameID); // Signal termination
         }
 
+
         turnActionEpilogue();
+
+        Resource r = new Resource();
+        r.type = resource.type; r.amount = p;
+        addTransaction(Common.PRODUCTION,gameID,r);
 
         // If we finished, quit the game loop
         if (max_total <= total_produced) {

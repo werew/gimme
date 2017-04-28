@@ -44,6 +44,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private Lock lockwinners;
     private ArrayList<String> endprod;
     private Lock lockendprod;
+    public String path_out = null;
 
     /* Some game values */
     int goal;
@@ -172,10 +173,25 @@ public class CoordinatorImpl extends CoordinatorPOA {
         // Sort transactions
         Collections.sort(transactions, new Comparator<Transaction> () {
             public int compare(Transaction t1, Transaction t2){
-                return t1.timestamp > t2.timestamp;
+                return (int) (t1.timestamp-t2.timestamp);
             }
         });
 
+    }
+
+    private void writeGameModel(){
+        try {
+            FileWriter f = new FileWriter(path_out);
+            for (Transaction t : transactions){
+                f.write(t.timestamp+" "+t.type+" "+t.to+" "+t.from+" "+
+                        t.content.type+" "+t.content.amount+"\n"
+                       );
+            }
+            f.close();
+        } catch (IOException e){
+            System.out.println(e.toString());
+        }
+        
 
     }
 
@@ -194,7 +210,11 @@ public class CoordinatorImpl extends CoordinatorPOA {
             }
         }
 
-        buildGameModel();
+        // Build and write game model to file
+        if (path_out != null){
+            buildGameModel();
+            writeGameModel();
+        }
 
         // Build ranking 
         ArrayList<Map.Entry<String,Integer>> l  = new ArrayList<Map.Entry<String,Integer>>();
@@ -323,10 +343,14 @@ public class CoordinatorImpl extends CoordinatorPOA {
         Option producers = new Option("p","producers",true, 
             "number of producers of the game (default is 2)");
         producers.setArgName("nb producers");
+        Option file = new Option("f","file",true, 
+            "write game model to file");
+        file.setArgName("output game model");
 
         options.addOption(taketurns); 
         options.addOption(consumers); 
         options.addOption(producers); 
+        options.addOption(file); 
 
         return options;
     }
@@ -358,6 +382,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
             if (cmd.hasOption('t')) coord.taketurns = true;
             if (cmd.hasOption('c')) 
                 coord.ncons = Integer.parseInt(cmd.getOptionValue('c'));
+            if (cmd.hasOption('f')) 
+                coord.path_out = cmd.getOptionValue('f');
             if (cmd.hasOption('p'))
                 coord.nprod = Integer.parseInt(cmd.getOptionValue('p'));
             coord.goal = Integer.parseInt(argz[2]);

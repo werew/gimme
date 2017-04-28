@@ -14,16 +14,17 @@ TODO
                           (TODO: finish cond based on resource availability)
 
 - Implement human cli (!)
-- Store transactions (TODO for production)
-- Observe transactions (TODO handle stolen)
 - Strategies 
 - Clean imports
 - Build a class for writing logs 
+
 - Protect concurrent access to resources Consumer (DONE)
 - Protect concurrent access to resource in productor (DONE)
 - Turn management should be in commont to all agents (DONE)
+- Observe transactions (DONE)
 - Use human-readable ids (DONE)
 - Production of resources (DONE)
+- Store transactions (DONE)
 - Get resources list from coordinator (DONE)
 
 NOTES

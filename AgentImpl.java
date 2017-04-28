@@ -21,7 +21,6 @@ import java.lang.Thread;
 
 public abstract class AgentImpl extends AgentPOA {
 
-    private Date date; // To timestamp the transactions
     public ThreadRun thread; // Orb's thread. If not null this will be signaled
                              // as joinable when the game has finished
 
@@ -46,7 +45,6 @@ public abstract class AgentImpl extends AgentPOA {
     /* @brief ctor */
     public AgentImpl(){
         transactions = new ArrayList<Transaction>();
-        date = new Date();
         gamefinished = new AtomicBoolean(false); 
         syncend = new AtomicBoolean(false); 
     }
@@ -248,7 +246,7 @@ public abstract class AgentImpl extends AgentPOA {
         t.content  = content;
 
         synchronized (transactions){
-            t.timestamp = date.getTime();
+            t.timestamp = System.currentTimeMillis(); //date.getTime();
             t.id = gameID+"-"+transactions.size();
             transactions.add(t);
         }

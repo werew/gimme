@@ -279,9 +279,11 @@ implements ConsumerOperations {
 
     /* @brief queryResource's wrapper */
     private Resource queryResource_wr(String id) throws GameFinished {
+        if (prods.containsKey(id) == false) return null;
+        Producer p = prods.get(id);
+
         turnActionPrologue();
         logmsg("queryres",0);
-        Producer p = prods.get(id);
         Resource r = p.queryResource();
         Transaction t = addTransaction(Common.QUERY,id,r);
         for (String c : observers) 

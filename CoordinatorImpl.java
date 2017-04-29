@@ -327,7 +327,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
     }
 
     private void broadcastMsg(Collection<? extends Agent> agents, String msg, int type){
-        for (Agent a : agents) a.logmsg(msg,type);
+        for (Agent a : agents) a.logmsg(msg);
     }
 
 

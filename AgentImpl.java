@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.*;
 import java.lang.Thread;
 
 public abstract class AgentImpl extends AgentPOA {
-
+    
     public ThreadRun thread; // Orb's thread. If not null this will be signaled
                              // as joinable when the game has finished
 
@@ -70,9 +70,7 @@ public abstract class AgentImpl extends AgentPOA {
      * turn action (or transaction) 
      */
     protected void turnActionPrologue() throws GameFinished {
-        logmsg("~~~ start action",0); 
         if (gamefinished.get() == true) {
-         logmsg("~~~ throw finished",0); 
          throw new GameFinished();
         }
 
@@ -80,7 +78,6 @@ public abstract class AgentImpl extends AgentPOA {
 
         try {
             turnLock.lock();
-            logmsg("0) WAITING TURN",0); 
             while (isMyTurn == false) turnAvailable.await();
 
             // Check if game has finished while waiting
@@ -89,7 +86,6 @@ public abstract class AgentImpl extends AgentPOA {
                 throw new GameFinished();
             }
 
-            logmsg("1) INSIDE TURN",0); 
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,17 +99,14 @@ public abstract class AgentImpl extends AgentPOA {
      * turn action (or transaction)
      */
     protected void turnActionEpilogue(){
-        logmsg("~~~ end action",0); 
         if (taketurns == false) return;
         try {
             isMyTurn = false; 
             turnFinished.signal(); 
-            logmsg("2) ENDING TURN",0); 
         } catch (Exception e) {
             e.printStackTrace();
         } finally { // Ensure unlock
             turnLock.unlock();
-            logmsg("3) OUTSIDE TURN",0); 
         }
     }
 
@@ -126,10 +119,8 @@ public abstract class AgentImpl extends AgentPOA {
      * TODO return ??
      */
     public boolean playTurn(){
-        logmsg("                <- PLAY",0);
         // Return immediatly if agent has finished the game
         if (gamefinished.get()) return true;
-        logmsg("            OK  <- PLAY",0);
 
         try {
             turnLock.lock();
@@ -145,7 +136,6 @@ public abstract class AgentImpl extends AgentPOA {
         } finally { // Ensure unlock
             turnLock.unlock();
         }
-        logmsg("           DONE -> PLAY",0);
         return true;
     }
 
@@ -175,7 +165,6 @@ public abstract class AgentImpl extends AgentPOA {
                 while (syncend.get() == false)
                     syncend.wait();
             }
-            logmsg("Sync end",0);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -192,10 +181,8 @@ public abstract class AgentImpl extends AgentPOA {
             turnAvailable.signal();
             turnLock.unlock();
         }
-
-        
-        logmsg(result,0);
-        logmsg("--------------------",0);
+       
+        System.out.println(result);
         if (thread != null) thread.setJoinable();
     }
 
@@ -254,9 +241,9 @@ public abstract class AgentImpl extends AgentPOA {
     }
 
 
-    /* TODO use log class to implement msg types */
-    public void logmsg(String msg, int type){
-        System.out.println(msg);
+    // Message from server
+    public void logmsg(String msg){
+        Log.info(Log.with(">> ",Log.FYELLOW)+msg);
     }
 
 }

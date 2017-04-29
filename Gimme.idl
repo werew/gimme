@@ -36,7 +36,7 @@ module Gimme
   
   interface Agent
   {
-    void logmsg(in string msg, in long type);
+    void logmsg(in string msg);
     oneway void start() ;
     boolean playTurn() ;
     Resource getResource(in Resource request) ;

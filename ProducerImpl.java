@@ -101,7 +101,6 @@ implements ProducerOperations {
     private void produce() throws GameFinished {
         turnActionPrologue();
         reslock.lock();
-        logmsg("Produce ("+resource.amount+")",0);
 
         // Actual potential production
         int p = (int) (resource.amount*relative_prod) + guaranteed_prod;
@@ -190,7 +189,7 @@ implements ProducerOperations {
 
         Registration r = c.loginProducer(myprod,id,resource.type);
         if (r.logged == false){
-            logmsg(r.msg,2);
+            Log.info(r.msg);
             return false;
         }
 
@@ -299,15 +298,14 @@ implements ProducerOperations {
             p.thread = new ThreadRun(cm);
             p.thread.start();
             p.thread.waitJoinable();
-p.logmsg("joinable",0);
             p.thread.shutdown();
 
         } catch (ParseException e) {
-            System.out.println("\nERROR: "+e.getMessage()+"\n");
+            Log.error("\nERROR: "+e.getMessage()+"\n");
             printUsage(options,1);
 
         } catch (Exception e) {
-            System.out.println("ERROR : " + e) ;
+            Log.error("ERROR : " + e) ;
             e.printStackTrace(System.out) ;
         } 
     }

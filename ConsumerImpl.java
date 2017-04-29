@@ -19,6 +19,7 @@ import Gimme.GameInfos;
 import Gimme.Agent;
 import Gimme.Transaction;
 import org.apache.commons.cli.*;
+import static java.lang.System.out;
 
 public class ConsumerImpl extends AgentImpl 
 implements ConsumerOperations {
@@ -85,14 +86,14 @@ implements ConsumerOperations {
         if (gi.running) return false;
        
         /* Login */ 
-        logmsg(id,0);
         Registration r = c.loginConsumer(mycons,id);
         if (r.logged == false){
-            logmsg(r.msg,2);
+            Log.error(r.msg);
             return false;
         }
         
-        logmsg("Login as "+r.id+": "+r.msg,1);
+        out.println("Login as "+Log.with(r.id,Log.BOLD)+
+                           ": "+Log.with(r.msg,Log.FGREEN));
         coordinator = c;
         gameID = r.id;
         return true;
@@ -113,7 +114,6 @@ implements ConsumerOperations {
 
     /* XXX test function */
     private void teststrategy0() throws GameFinished {
-        logmsg("teststrat0",0);
         while (true) {
             startObservation();
             if (taketurns == false){
@@ -126,20 +126,17 @@ implements ConsumerOperations {
             Resource req = new Resource();
             req.type = "Dinero"; req.amount = 20;
             Resource r = getResource_wr("Producer-0",req);
-            logmsg(r.type+" "+r.amount,0);
         }
     } 
 
 
     /* XXX test function */
     private void teststrategy1() throws GameFinished {
-        logmsg("teststrat1",0);
         while (true) {
             for (String id : prods.keySet()){
                 Resource req = new Resource();
                 req.type = "Dinero"; req.amount = 10;
                 Resource r = getResource_wr(id,req);
-                logmsg(r.type+" "+r.amount,0);
 //                keepState();
                 try{Thread.sleep(1000);
                 } catch (Exception e) {}
@@ -165,7 +162,6 @@ implements ConsumerOperations {
      */
     private void startObservation() throws GameFinished {
         turnActionPrologue();
-        logmsg("startobs",0);
         for (Consumer c : cons.values()){
             c.addObserver(gameID);
         }
@@ -182,7 +178,6 @@ implements ConsumerOperations {
      */
     private void stopObservation() throws GameFinished {
         turnActionPrologue();
-        logmsg("stopobs",0);
         for (Consumer c : cons.values()){
             c.removeObserver(gameID);
         }
@@ -259,7 +254,7 @@ implements ConsumerOperations {
         if (goalReached()) {
             gamefinished.set(true);        // Prevent this agent from playing
             coordinator.addWinner(gameID); // Signal winner
-            logmsg("--> :) - FINISHED ",0);
+            Log.success("--> GOAL REACHED <--");
         }
 
         turnActionEpilogue();
@@ -285,7 +280,6 @@ implements ConsumerOperations {
         Producer p = prods.get(id);
 
         turnActionPrologue();
-        logmsg("queryres",0);
         Resource r = p.queryResource();
         addToView(r.type,id); 
         Transaction t = addTransaction(Common.QUERY,id,r);
@@ -356,64 +350,68 @@ implements ConsumerOperations {
             e.printStackTrace();
         } catch (GameFinished gf){
             syncNotify();
-            logmsg("Game has finished!",0);
+            Log.info("Game has finished!");
         } 
     }
 
 
     private void show_commands(){
-        logmsg("list of commands:\n"+
+       out.println(
+               "list of commands:\n"+
                " help                       print this help\n"+
                " show                       show global view\n"+
                " get <amount> <type> <from> get resource from an agent\n"+
                " query <producer>           query the state of a producer\n"+
                " pass [times]               do nothing\n"+
                " protect [times]            enter protection mode\n"+
-               " observe [times]            enter observation mode",0
+               " observe [times]            enter observation mode"
         );
     }
 
     private void show_view(){
             // Show goal
-            logmsg("~~ Goal is "+goal,0);
+            out.println(Log.with("-- GOAL: "+Log.with(goal+"",Log.FRED),Log.BOLD));
 
             // Show consumers 
-            logmsg("~~ Opponents",0);
+            out.println(Log.with("-- Opponents: ",Log.BOLD));
             for (String con : cons.keySet()){
-                logmsg("    "+con,0);
+                out.println("    "+con);
             }
 
             // Show view of the production
+            out.println(Log.with("-- Resources: ",Log.BOLD));
             HashSet<String> _printed_prods = new HashSet<String>();
             for (String res_type : resources.keySet()){
-                logmsg("~~ "+res_type+" (got: "+resources.get(res_type)+")",0);
+                int amount = resources.get(res_type);
+                out.println("    "+res_type+" (stock: "+ Log.with(""+resources.get(res_type), 
+                            amount >= goal ? Log.FGREEN : Log.FRED)+")");
                 if (view.containsKey(res_type) == false) continue;
                 for (String prod : view.get(res_type)){
-                    logmsg("    "+prod,0);
+                    out.println("        "+prod);
                     _printed_prods.add(prod);
                 }
             } 
             if (_printed_prods.size() < prods.size()){
-                logmsg("~~ Unknown productions",0);
+                out.println(Log.with("-- Unknown productions",Log.BOLD));
                 for (String prod : prods.keySet()){
                     if (_printed_prods.contains(prod)) continue;
-                    logmsg("    "+prod,0);
+                    out.println("    "+prod);
                 }
             }
             
     }
 
     private void invalid_cmd(){
-        logmsg("Invalid command (type help)",0);
+        Log.error("Invalid command (type help)");
     }
 
     private void cleanState() throws GameFinished {
         if (protect_mode.get()) {
-            logmsg("Leaving protection mode",0);
+            Log.warning("Leaving protection mode");
             leaveProtectedMode();
         }
         if (observation_mode.get()) {
-            logmsg("Stop observing",0);
+            Log.warning("Stop observing");
             stopObservation();
         }
     }
@@ -442,9 +440,14 @@ implements ConsumerOperations {
             Resource res = getResource_wr(from,request);
 
             if (res == null) { 
-                logmsg(from+" is not a valid agent",0);
+                Log.error(from+" is not a valid agent");
             } else { 
-                logmsg("Got "+res.amount+" of "+res.type+" from "+from,0);
+                if (res.amount < 0)
+                    Log.warning("You have been seen stealing: "+res.amount);
+                else if (res.amount  == 0)
+                    Log.success("Got "+res.amount+" of "+res.type);
+                else
+                    out.println("No luck...");
             }
          } catch (NumberFormatException e) { 
             invalid_cmd();
@@ -455,8 +458,8 @@ implements ConsumerOperations {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command = null;
 
-        logmsg(">>> Human cli open",0);
-        System.out.print("@_@> ");
+        Log.info("Human cli open");
+        out.print(Log.with("@_@> ",Log.FRED));
 
         while ((command = in.readLine()) != null){
             String[] args = command.split(" ");
@@ -476,28 +479,36 @@ implements ConsumerOperations {
                 case "query": cleanState();
                               if (args.length < 1) invalid_cmd();
                               else {
+                                  //TODO cli_queryResource
                                   Resource r = queryResource_wr(args[1]);
-                                  if (r == null) logmsg(args[1]+" is not a producer",0);
-                                  else logmsg(args[1]+" has "+r.amount+" units of "+r.type,0);
+                                  if (r == null) Log.error(args[1]+" is not a producer");
+                                  else Log.info(args[1]+" has "+r.amount+" units of "+r.type);
                               }
                     break;
-                case "protect": cleanState(); 
+                case "protect": if (protect_mode.get()) {
+                                    Log.info("Protected mode is active");
+                                    break;
+                                }
+                                cleanState(); 
+                                Log.info("Entering protected mode...");
                                 enterProtectedMode();
-                                logmsg("Protecting...",0);
                                 if (args.length > 1) doNothing(args[1]);
                                 else doNothing(1);
                     break;
-                case "observe": cleanState();
+                case "observe": if (observation_mode.get()){
+                                    Log.info("Already observing");
+                                    break;
+                                }
+                                cleanState();
+                                Log.info("Starting observation...");
                                 startObservation();
-                                logmsg("Observing...",0);
                                 if (args.length > 1) doNothing(args[1]);
                                 else doNothing(1);
                     break;
                 default: invalid_cmd();
             }
-            System.out.print("@_@> ");
+            out.print(Log.with("@_@> ",Log.FRED));
         }
-        logmsg("DONE",0);
     }
 
 
@@ -529,7 +540,6 @@ implements ConsumerOperations {
         cons  = new HashMap<String,Consumer>();    
         for (int i = 0; i < consumers.length; i++){
             if (ids[i].equals(gameID)) continue;
-            logmsg("Put consumer "+ids[i],0);
             cons.put(ids[i],consumers[i]);
         }
     }
@@ -545,7 +555,6 @@ implements ConsumerOperations {
     public void setProducers(Producer[] producers, String[] ids){
         prods = new HashMap<String,Producer>();    
         for (int i = 0; i < producers.length; i++){
-            logmsg("Put producer "+ids[i],0);
             prods.put(ids[i],producers[i]);
         }
     }
@@ -557,7 +566,6 @@ implements ConsumerOperations {
      * @param id identifier of the Consumer
      */
     public void addObserver(String id){
-       logmsg("Adding "+id,0);
        observers.add(id); 
     }
 
@@ -568,7 +576,6 @@ implements ConsumerOperations {
      * @param id identifier of the Consumer
      */
     public void removeObserver(String id){
-       logmsg("Removing "+id,0);
        observers.remove(id); 
     }
 
@@ -592,7 +599,7 @@ implements ConsumerOperations {
                 break;
             case Common.QUERY:
                 addToView(t.content.type,t.from); 
-                logmsg("Saw query: "+who+" got "+t.content.type+" from "+t.from,0);
+                Log.info("Saw query: "+who+" got "+t.content.type+" from "+t.from);
                 break;
         }
     }
@@ -681,7 +688,7 @@ implements ConsumerOperations {
           
             String id = cmd.hasOption('i') ? cmd.getOptionValue('i') : "auto-set";
             if (consumer.joinCoordinator(coord,id) == false) {
-                System.out.println("Impossible to join server") ;
+                Log.error("Impossible to join server") ;
                 printUsage(options, 1);
             }
 
@@ -689,20 +696,17 @@ implements ConsumerOperations {
             consumer.thread = new ThreadRun(cm);
             consumer.thread.start();
             consumer.thread.waitJoinable();
-            consumer.logmsg("# joinable",0);
             consumer.thread.shutdown();
-            consumer.logmsg("# ended",0);
 
 
         } catch (ParseException e) {
-            System.out.println("\nERROR: "+e.getMessage()+"\n");
+            Log.error("\nERROR: "+e.getMessage()+"\n");
             printUsage(options,1);
 
         } catch (Exception e) {
-            System.out.println("ERROR : " + e) ;
+            Log.error("ERROR : " + e) ;
             e.printStackTrace(System.out) ;
         } 
-        System.out.println("# very ended");
     }
 }
 

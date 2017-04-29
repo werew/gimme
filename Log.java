@@ -2,7 +2,7 @@ import static java.lang.System.out;
 
 
 
-public class Logger {
+public class Log {
 
     // Commands
     static final String CLEAR_SCREEN = "2J";
@@ -35,7 +35,7 @@ public class Logger {
     static final String BWHITE = "47";
 
 
-    static private String esc(String cmd){
+    static public String esc(String cmd){
         return "\033["+cmd+"m";
     }
 
@@ -58,13 +58,13 @@ public class Logger {
     static public void success(String msg){
        out.println(esc(FGREEN)+msg+esc(OFF)); 
     }
-
+    
     static public String with(String msg, String cmd){
        return "\033["+cmd+"m"+msg+"\033[0m";       
     }
 
     static public void reset(){
-       out.println("\033[0m");
+       out.print("\033[0m");
     }
 }
     

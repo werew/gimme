@@ -141,7 +141,7 @@ implements ConsumerOperations {
                 Resource r = getResource_wr(id,req);
                 logmsg(r.type+" "+r.amount,0);
 //                keepState();
-                try{Thread.sleep(100);
+                try{Thread.sleep(1000);
                 } catch (Exception e) {}
             }
 /*
@@ -449,7 +449,13 @@ implements ConsumerOperations {
                             // TODO
                     break;
                 case "query": cleanState();
-                            // TODO
+                              if (args.length < 1) invalid_cmd();
+                              else if (!prods.containsKey(args[1]))
+                                    logmsg(args[1]+" is not a producer",0);
+                              else {
+                                  Resource r = queryResource_wr(args[1]);
+                                  logmsg(args[1]+" has "+r.amount+" units of "+r.type,0);
+                              }
                     break;
                 case "protect": cleanState(); 
                                 enterProtectedMode();

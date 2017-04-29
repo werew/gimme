@@ -429,7 +429,7 @@ implements ConsumerOperations {
         switch (t.type) {
             case Common.REQUEST:
                 if (prods.containsKey(t.from) && 
-                    t.content.amount < 0){
+                    t.content.amount > 0){
                     // Update view
                     addToView(t.content.type,t.from); 
                 }

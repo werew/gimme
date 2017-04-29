@@ -289,9 +289,11 @@ public class CoordinatorImpl extends CoordinatorPOA {
         for (Producer p : producers.values()) p.start();
 
         if (taketurns == true) {
+            List<Consumer> cons = new ArrayList(consumers.values());
             while (gamefinished.get() == false) {
-                for (Consumer c : consumers.values()) c.playTurn();
+                for (Consumer c : cons) c.playTurn();
                 for (Producer p : producers.values()) p.playTurn();
+                Collections.shuffle(cons);
             }
         } else {
             synchronized (gamefinished){

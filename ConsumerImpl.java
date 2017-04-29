@@ -233,12 +233,14 @@ implements ConsumerOperations {
 
     /* @brief getResource's wrapper */
     private Resource getResource_wr(String id, Resource request) throws GameFinished {
-        turnActionPrologue();
-        
+
         // Get the agent 
         Agent a = null;
         if (prods.containsKey(id)) a = prods.get(id);
-        else a = cons.get(id);
+        else if (cons.containsKey(id)) a = cons.get(id);
+        else return null;
+
+        turnActionPrologue();
     
         // Perform request
         Resource r = a.getResource(request);

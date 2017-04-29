@@ -28,6 +28,7 @@ implements ConsumerOperations {
     /* My game infos */
     private ConcurrentHashMap<String,Integer> resources;
     private AtomicBoolean protect_mode;
+    private AtomicBoolean observation_mode;
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private ConcurrentSkipListSet<String> observers;
     private int strategy = 0;
@@ -54,6 +55,7 @@ implements ConsumerOperations {
         resources = new ConcurrentHashMap<String,Integer>();	
         observers = new ConcurrentSkipListSet<String>();
         protect_mode = new AtomicBoolean(false);
+        observation_mode = new AtomicBoolean(false);
         this.strategy = strategy;
     }
 
@@ -167,6 +169,7 @@ implements ConsumerOperations {
         for (Consumer c : cons.values()){
             c.addObserver(gameID);
         }
+        observation_mode.set(true);
         turnActionEpilogue();
     }
 
@@ -183,6 +186,7 @@ implements ConsumerOperations {
         for (Consumer c : cons.values()){
             c.removeObserver(gameID);
         }
+        observation_mode.set(false);
         turnActionEpilogue();
     }
 

@@ -337,16 +337,137 @@ implements ConsumerOperations {
      */
     public void start(){
         try {
-            switch (strategy) {
-                case 0: teststrategy0();
-                    break;
-                case 1: teststrategy1();
-                    break;
+            if (human) {
+                human_cli();    
+            } else {
+                switch (strategy) {
+                    case 0: teststrategy0();
+                        break;
+                    case 1: teststrategy1();
+                        break;
+                }
             }
+        } catch (Exception e){
+            e.printStackTrace();
         } catch (GameFinished gf){
             syncNotify();
             logmsg("Game has finished!",0);
+        } 
+    }
+
+
+    private void show_commands(){
+        logmsg("list of commands:\n"+
+               " help                       print this help\n"+
+               " show                       show global view\n"+
+               " get <amount> <type> <from> get resource from an agent\n"+
+               " query <producer>           query the state of a producer\n"+
+               " pass [times]               do nothing\n"+
+               " protect [times]            enter protection mode\n"+
+               " observe [times]            enter observation mode",0
+        );
+    }
+
+    private void show_view(){
+            // Show goal
+            logmsg("~~ Goal is "+goal,0);
+
+            // Show consumers 
+            logmsg("~~ Opponents",0);
+            for (String con : cons.keySet()){
+                logmsg("    "+con,0);
+            }
+
+            // Show view of the production
+            HashSet<String> _printed_prods = new HashSet<String>();
+            for (String res_type : resources.keySet()){
+                logmsg("~~ "+res_type+" (got: "+resources.get(res_type)+")",0);
+                if (view.containsKey(res_type) == false) continue;
+                for (String prod : view.get(res_type)){
+                    logmsg("    "+prod,0);
+                    _printed_prods.add(prod);
+                }
+            } 
+            if (_printed_prods.size() < prods.size()){
+                logmsg("~~ Unknown productions",0);
+                for (String prod : prods.keySet()){
+                    if (_printed_prods.contains(prod)) continue;
+                    logmsg("    "+prod,0);
+                }
+            }
+            
+    }
+
+    private void invalid_cmd(){
+        logmsg("Invalid command (type help)",0);
+    }
+
+    private void cleanState() throws GameFinished {
+        if (protect_mode.get()) {
+            logmsg("Leaving protection mode",0);
+            leaveProtectedMode();
         }
+        if (observation_mode.get()) {
+            logmsg("Stop observing",0);
+            stopObservation();
+        }
+    }
+
+    private void doNothing(int nturns) throws GameFinished {
+        for (int i = 0; i < nturns; i++) keepState();
+    }
+
+    private void doNothing(String nturns) throws GameFinished {
+         try {
+            int times = Integer.parseInt(nturns);
+            if (times < 0) throw new NumberFormatException();
+            doNothing(times);
+         } catch (NumberFormatException e) { 
+            invalid_cmd();
+         } 
+    }
+
+    private void human_cli() throws GameFinished, IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String command = null;
+
+        logmsg(">>> Human cli open",0);
+        System.out.print("@_@> ");
+
+        while ((command = in.readLine()) != null){
+            String[] args = command.split(" ");
+
+            switch (args[0]){
+                case "help": show_commands();
+                    break;
+                case "show": show_view();
+                    break;
+                case "pass": if (args.length > 1) doNothing(args[1]);
+                             else doNothing(1);
+                    break;
+                case "get": cleanState();
+                            // TODO
+                    break;
+                case "query": cleanState();
+                            // TODO
+                    break;
+                case "protect": cleanState(); 
+                                enterProtectedMode();
+                                logmsg("Protecting...",0);
+                                if (args.length > 1) doNothing(args[1]);
+                                else doNothing(1);
+                    break;
+                case "observe": cleanState();
+                                startObservation();
+                                logmsg("Observing...",0);
+                                if (args.length > 1) doNothing(args[1]);
+                                else doNothing(1);
+                    break;
+                default: invalid_cmd();
+            }
+            System.out.print("@_@> ");
+        }
+        logmsg("DONE",0);
     }
 
 

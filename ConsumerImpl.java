@@ -431,6 +431,25 @@ implements ConsumerOperations {
             invalid_cmd();
          } 
     }
+    
+    private void cli_getResource(String amount, String type, String from) throws GameFinished {
+         try {
+            int a = Integer.parseInt(amount);
+            if (a < 0) throw new NumberFormatException();
+
+            Resource request = new Resource();
+            request.amount = a; request.type = type;
+            Resource res = getResource_wr(from,request);
+
+            if (res == null) { 
+                logmsg(from+" is not a valid agent",0);
+            } else { 
+                logmsg("Got "+res.amount+" of "+res.type+" from "+from,0);
+            }
+         } catch (NumberFormatException e) { 
+            invalid_cmd();
+         } 
+    }
 
     private void human_cli() throws GameFinished, IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -451,7 +470,8 @@ implements ConsumerOperations {
                              else doNothing(1);
                     break;
                 case "get": cleanState();
-                            // TODO
+                            if (args.length < 4) invalid_cmd();
+                            else cli_getResource(args[1],args[2],args[3]); 
                     break;
                 case "query": cleanState();
                               if (args.length < 1) invalid_cmd();

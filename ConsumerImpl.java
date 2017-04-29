@@ -453,11 +453,10 @@ implements ConsumerOperations {
                     break;
                 case "query": cleanState();
                               if (args.length < 1) invalid_cmd();
-                              else if (!prods.containsKey(args[1]))
-                                    logmsg(args[1]+" is not a producer",0);
                               else {
                                   Resource r = queryResource_wr(args[1]);
-                                  logmsg(args[1]+" has "+r.amount+" units of "+r.type,0);
+                                  if (r == null) logmsg(args[1]+" is not a producer",0);
+                                  else logmsg(args[1]+" has "+r.amount+" units of "+r.type,0);
                               }
                     break;
                 case "protect": cleanState(); 

@@ -285,6 +285,7 @@ implements ConsumerOperations {
         turnActionPrologue();
         logmsg("queryres",0);
         Resource r = p.queryResource();
+        addToView(r.type,id); 
         Transaction t = addTransaction(Common.QUERY,id,r);
         for (String c : observers) 
             cons.get(c).seeTransaction(gameID,t);

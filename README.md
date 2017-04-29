@@ -13,11 +13,12 @@ TODO
                           (DONE: exit coordinator)
                           (TODO: finish cond based on resource availability)
 
-- Implement human cli (!)
+- Shuffled consumers at each turn
+- Build a class for writing logs 
 - Strategies 
 - Clean imports
-- Build a class for writing logs 
 
+- Implement human cli (DONE)
 - Protect concurrent access to resources Consumer (DONE)
 - Protect concurrent access to resource in productor (DONE)
 - Turn management should be in commont to all agents (DONE)
@@ -38,3 +39,4 @@ NOTES
                     ==> result will not change
 - End conditions: all consumers reached goal, all producers are terminated (problem => non terminated
                   cannot offer all resources )
+- Shuffled consumers at each turn

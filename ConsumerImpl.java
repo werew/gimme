@@ -481,6 +481,7 @@ implements ConsumerOperations {
         for (String r : resources){
             ConcurrentSkipListSet<String> prod_set = new ConcurrentSkipListSet<String>();
             view.put(r,prod_set);
+            this.resources.put(r,new Integer(0));
         }
     }
 

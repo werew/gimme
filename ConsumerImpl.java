@@ -320,6 +320,11 @@ implements ConsumerOperations {
      * @see ProducerImpl.getResource
      */
     public Resource getResource(Resource request){
+        if (gamefinished.get()) {
+            request.amount = 0;
+            return request;
+        }
+
         if (protect_mode.get()) {
             if (verbose) Log.warning("A thief was caught");
             request.amount = - (goal/10);

@@ -25,6 +25,7 @@ public class ConsumerImpl extends AgentImpl
 implements ConsumerOperations {
 
     private Consumer mycons = null;
+    public boolean verbose = false;
 
     /* My game infos */
     private ConcurrentHashMap<String,Integer> resources;
@@ -161,6 +162,7 @@ implements ConsumerOperations {
      * the other consumers
      */
     private void startObservation() throws GameFinished {
+        if (verbose) Log.info("Starting observation...");
         turnActionPrologue();
         for (Consumer c : cons.values()){
             c.addObserver(gameID);
@@ -177,6 +179,7 @@ implements ConsumerOperations {
      * the other consumers
      */
     private void stopObservation() throws GameFinished {
+        if (verbose) Log.warning("Stop observation");
         turnActionPrologue();
         for (Consumer c : cons.values()){
             c.removeObserver(gameID);
@@ -186,12 +189,14 @@ implements ConsumerOperations {
     }
 
     private void enterProtectedMode() throws GameFinished {
+        if (verbose) Log.info("Entering protected mode...");
         turnActionPrologue();
         protect_mode.set(true);
         turnActionEpilogue();
     }
 
     private void leaveProtectedMode() throws GameFinished {
+        if (verbose) Log.warning("Leaving protection mode");
         turnActionPrologue();
         protect_mode.set(false);
         turnActionEpilogue();
@@ -235,6 +240,8 @@ implements ConsumerOperations {
         else if (cons.containsKey(id)) a = cons.get(id);
         else return null;
 
+        if (verbose) Log.info("Getting "+request.amount+" of "+request.type+" from "+id);
+
         turnActionPrologue();
     
         // Perform request
@@ -254,7 +261,7 @@ implements ConsumerOperations {
         if (goalReached()) {
             gamefinished.set(true);        // Prevent this agent from playing
             coordinator.addWinner(gameID); // Signal winner
-            Log.success("--> GOAL REACHED <--");
+            if (verbose) Log.success("--> GOAL REACHED <--");
         }
 
         turnActionEpilogue();
@@ -278,6 +285,8 @@ implements ConsumerOperations {
     private Resource queryResource_wr(String id) throws GameFinished {
         if (prods.containsKey(id) == false) return null;
         Producer p = prods.get(id);
+
+        if (verbose) Log.info("Querying "+id);
 
         turnActionPrologue();
         Resource r = p.queryResource();
@@ -312,6 +321,7 @@ implements ConsumerOperations {
      */
     public Resource getResource(Resource request){
         if (protect_mode.get()) {
+            if (verbose) Log.warning("A thief was caught");
             request.amount = - (goal/10);
             return request;
         }
@@ -406,14 +416,8 @@ implements ConsumerOperations {
     }
 
     private void cleanState() throws GameFinished {
-        if (protect_mode.get()) {
-            Log.warning("Leaving protection mode");
-            leaveProtectedMode();
-        }
-        if (observation_mode.get()) {
-            Log.warning("Stop observing");
-            stopObservation();
-        }
+        if (protect_mode.get()) leaveProtectedMode();
+        if (observation_mode.get()) stopObservation();
     }
 
     private void doNothing(int nturns) throws GameFinished {
@@ -445,9 +449,9 @@ implements ConsumerOperations {
                 if (res.amount < 0)
                     Log.warning("You have been seen stealing: "+res.amount);
                 else if (res.amount  == 0)
-                    Log.success("Got "+res.amount+" of "+res.type);
-                else
                     out.println("No luck...");
+                else
+                    Log.success("Got "+res.amount+" of "+res.type);
             }
          } catch (NumberFormatException e) { 
             invalid_cmd();
@@ -490,7 +494,6 @@ implements ConsumerOperations {
                                     break;
                                 }
                                 cleanState(); 
-                                Log.info("Entering protected mode...");
                                 enterProtectedMode();
                                 if (args.length > 1) doNothing(args[1]);
                                 else doNothing(1);
@@ -500,7 +503,6 @@ implements ConsumerOperations {
                                     break;
                                 }
                                 cleanState();
-                                Log.info("Starting observation...");
                                 startObservation();
                                 if (args.length > 1) doNothing(args[1]);
                                 else doNothing(1);
@@ -634,11 +636,14 @@ implements ConsumerOperations {
             "Name to use for the game");
         Option strategy = new Option("s","strategy",true, 
             "Which strategy should use the player");
+        Option verbose = new Option("v","verbose",false, 
+            "Print every action");
 
         Options options = new Options();
         options.addOption(human); 
         options.addOption(id); 
         options.addOption(strategy); 
+        options.addOption(verbose); 
 
         return options;
     }
@@ -675,6 +680,7 @@ implements ConsumerOperations {
             int strategy = cmd.hasOption('s') ? 
                 Integer.parseInt(cmd.getOptionValue('s')) : 0;
             ConsumerImpl consumer = new ConsumerImpl(cmd.hasOption('h'), strategy);
+            if (cmd.hasOption('v')) consumer.verbose = true;
 
             /* Create a server */
             CorbaManager cm = new CorbaManager(argz[0],argz[1]);

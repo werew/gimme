@@ -13,11 +13,13 @@ TODO
                           (DONE: exit coordinator)
                           (TODO: finish cond based on resource availability)
 
-- Shuffled consumers at each turn
-- Build a class for writing logs 
 - Strategies 
 - Clean imports
+- Report
 
+- Verbose mode (DONE)
+- Shuffled consumers at each turn (DONE)
+- Build a class for writing logs (DONE)
 - Implement human cli (DONE)
 - Protect concurrent access to resources Consumer (DONE)
 - Protect concurrent access to resource in productor (DONE)

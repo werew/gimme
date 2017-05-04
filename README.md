@@ -14,6 +14,7 @@ TODO
                           (TODO: finish cond based on resource availability)
 
 - Strategies 
+- Test strategies
 - Clean imports
 - Report
 

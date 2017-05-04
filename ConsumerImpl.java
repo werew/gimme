@@ -31,6 +31,7 @@ implements ConsumerOperations {
     private ConcurrentHashMap<String,Integer> resources;
     private AtomicBoolean protect_mode;
     private AtomicBoolean observation_mode;
+    int ripsoff = 0;
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private ConcurrentSkipListSet<String> observers;
     private int strategy = 0;
@@ -179,6 +180,15 @@ implements ConsumerOperations {
                 else crumb += 1;
             }
         }
+    }
+
+    
+    private void watchfuleye() throws GameFinished {
+        
+    }
+
+    private float steal_rate(){
+        return (float) ripsoff / (float) transactions.size();
     }
 
     private String minRes_helper(){
@@ -687,6 +697,9 @@ implements ConsumerOperations {
                     // Update view
                     addToView(t.content.type,t.from); 
                 }
+                if (cons.containsKey(t.from) || 
+                    t.from == gameID) ripsoff++;
+                
                 break;
             case Common.QUERY:
                 addToView(t.content.type,t.from); 

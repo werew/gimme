@@ -169,7 +169,7 @@ implements ConsumerOperations {
         while (true) {
 
             String min_res = minRes_helper();
-            
+            // TODO what if not prods in view 
             for (String prod : view.get(min_res)){
                 Resource req = new Resource();
                 req.type = min_res; 
@@ -182,12 +182,68 @@ implements ConsumerOperations {
         }
     }
 
+    private <T> T randFromSet(Set<T> s){
+        int nb = (int) Math.random() % s.size();
+        int i = 0; 
+        for (T e : s){
+            if (i == nb) return e;
+            i++;
+        }
+        return null;
+    }
+
+    private Resource randEatMin(int amount) throws GameFinished {
+
+        String min_res = minRes_helper();
+        Set<String> prods_ids = view.get(min_res);
+
+        String target = randFromSet(prods_ids);
+        if (target == null) target = randFromSet(prods.keySet());
+
+        Resource req = new Resource();
+        req.type = min_res; 
+        req.amount = amount;
+
+        return getResource_wr(target,req);
+    }
+
     
-    private void watchfuleye() throws GameFinished {
-        
+    private void watchfuleye_strategy() throws GameFinished {
+        int a = 1;
+        while (true) {
+            // 1) Observe
+            startObservation();
+            if (taketurns == false){
+                try{Thread.sleep(500);
+                } catch (Exception e) {}
+            } else {
+                keepState();
+                keepState();
+            }
+            stopObservation();
+            
+            // 2) Protect if necessary
+            if (steal_rate() > 0.1) {
+                enterProtectedMode(); 
+                if (taketurns == false){
+                    try{Thread.sleep(500);
+                    } catch (Exception e) {}
+                } else {
+                    keepState();
+                    keepState();
+                }
+                leaveProtectedMode();
+            }
+            
+            // 3) Get some resources
+            Resource res = randEatMin(a);
+            if (res.amount > 0) a += a/2 + 1;
+            else a = 1;
+        }    
     }
 
     private float steal_rate(){
+        if (transactions.size() == 0) return 0;
         return (float) ripsoff / (float) transactions.size();
     }
 

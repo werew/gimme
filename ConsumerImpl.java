@@ -34,7 +34,7 @@ implements ConsumerOperations {
     int ripsoff = 0;
     private ConcurrentHashMap<String,ConcurrentSkipListSet<String>> view;
     private ConcurrentSkipListSet<String> observers;
-    private int strategy = 0;
+    private String strategy;
     private boolean human = false;
     private int goal;
 
@@ -53,7 +53,7 @@ implements ConsumerOperations {
      *        for turn-based games)
      * @param strategy id of the strategy to use for the game
      */
-    public ConsumerImpl(boolean human,int strategy){
+    public ConsumerImpl(boolean human,String strategy){
         if (human) this.setHuman();
         resources = new ConcurrentHashMap<String,Integer>();	
         observers = new ConcurrentSkipListSet<String>();
@@ -505,9 +505,15 @@ implements ConsumerOperations {
                 human_cli();    
             } else {
                 switch (strategy) {
-                    case 0: teststrategy0();
+                    case "watchfuleye": watchfuleye_strategy();
                         break;
-                    case 1: teststrategy1();
+                    case "waitandsteal": waitandsteal_strategy();
+                        break;
+                    case "crumbeater": crumbeater_strategy(1);
+                        break;
+                    default:  
+                        Log.warning("Using default strategy");
+                        crumbeater_strategy(50);
                         break;
                 }
             }
@@ -835,8 +841,7 @@ implements ConsumerOperations {
             if (argz.length < 2) throw new ParseException("Argument missing");
 
             /* Create and init consumer */
-            int strategy = cmd.hasOption('s') ? 
-                Integer.parseInt(cmd.getOptionValue('s')) : 0;
+            String strategy = cmd.hasOption('s') ? cmd.getOptionValue('s') : "default";
             ConsumerImpl consumer = new ConsumerImpl(cmd.hasOption('h'), strategy);
             if (cmd.hasOption('v')) consumer.verbose = true;
 

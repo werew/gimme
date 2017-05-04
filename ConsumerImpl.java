@@ -384,12 +384,16 @@ implements ConsumerOperations {
         else if (cons.containsKey(id)) a = cons.get(id);
         else return null;
 
-        if (verbose) Log.info("Getting "+request.amount+" of "+request.type+" from "+id);
 
         turnActionPrologue();
     
         // Perform request
         Resource r = a.getResource(request);
+        if (verbose) {
+            String rescolor = r.amount > 0 ? Log.FGREEN : Log.FRED;
+            Log.info("Get "+request.amount+" of "+request.type+" from "+id+
+                     ": GOT "+Log.with(r.amount+"",rescolor));
+        }
 
         // Update transactions
         Transaction t = addTransaction(Common.REQUEST,id,r); 

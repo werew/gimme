@@ -113,6 +113,86 @@ implements ConsumerOperations {
     }
 
 
+    private void waitandsteal_strategy() throws GameFinished {
+        float nb_prod = prods.size();
+        float nb_cons = cons.size();
+        float nb_res  = resources.size();
+
+        if (nb_cons > 0){
+            // Smart observation (calculate time based on game actors and params)
+            float avrg_obs  = ((nb_prod+nb_res)/nb_cons)*(goal/20);
+            startObservation();
+            if (taketurns == false){
+                try{Thread.sleep((int) avrg_obs*20);
+                } catch (Exception e) {}
+            } else {
+                int wt = (int) avrg_obs;
+                for (int i = 0; i < wt; i++) 
+                    keepState();
+            }
+            stopObservation();
+        }
+
+        // Try to steal from the opponents 
+        Set<String> targets =  cons.keySet();
+        for (String restype : resources.keySet()){
+            // Init max ripoff
+            Resource ripoff = new Resource();
+            ripoff.type = restype;
+            ripoff.amount = goal/3;
+
+            for (Iterator<String> i = targets.iterator(); i.hasNext();) {
+                while (true) {
+                    Resource loot = getResource_wr(i.next(),ripoff);
+                    
+                    // Success, go to next target
+                    if (loot.amount > 0) break;
+                    // Not enough, steal smaller amount
+                    if (loot.amount == 0) 
+                        ripoff.amount -= ripoff.amount/4;
+                    // Was protecting, remove from targets
+                    if (loot.amount < 0){
+                        i.remove();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Get missing resources
+        while (true) {
+            int a = 10;
+
+            String min_res = minRes_helper();
+            
+            for (String prod : view.get(min_res)){
+                Resource req = new Resource();
+                req.type = min_res; 
+                req.amount = a;
+
+                Resource r = getResource_wr(prod,req);
+                if (r.amount == 0 && a > 1) a -= 1;
+                else a += 1;
+            }
+        }
+    } 
+
+    private String minRes_helper(){
+        // Init min to the max value
+        Resource min = new Resource();
+        min.type = null;
+        min.amount = goal;
+       
+        // Search the min resource 
+        for (Map.Entry<String,Integer> e : resources.entrySet()){
+            if (e.getValue() < min.amount){
+                min.type = e.getKey();
+                min.amount = e.getValue();
+            }
+        }
+        return min.type;
+    }
+    
     /* XXX test function */
     private void teststrategy0() throws GameFinished {
         while (true) {

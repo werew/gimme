@@ -668,7 +668,8 @@ implements ConsumerOperations {
                                 if (args.length > 1) doNothing(args[1]);
                                 else doNothing(1);
                     break;
-                default: invalid_cmd();
+                default: if (args[0] != null && !args[0].isEmpty()) 
+                            invalid_cmd();
             }
             out.print(Log.with("@_@> ",Log.FRED));
         }

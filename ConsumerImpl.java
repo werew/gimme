@@ -169,8 +169,9 @@ implements ConsumerOperations {
         while (true) {
             Resource r = randEatMin(crumb);
 
-            if (r.amount == 0 && crumb > 1) crumb -= 1;
-            else crumb += 1;
+            if (r.amount == 0){
+                if (crumb > 1) crumb -= 1;
+            } else crumb += 1;
         }
     }
 

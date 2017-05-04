@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.*;
 import java.io.IOException;
 import org.omg.CosNaming.*;
+import Gimme.GameInfos;
 import Gimme.Producer;
 import Gimme.Registration;
 import Gimme.ProducerPOATie;
@@ -187,6 +188,13 @@ implements ProducerOperations {
      */
     public boolean joinCoordinator(Coordinator c, String id){
 
+        GameInfos gi = c.getGameInfos();
+
+        if (gi.taketurns != this.taketurns){
+            Log.error("Game style doesn't correspond: remove or add the -t option");
+            return false;
+        }
+
         Registration r = c.loginProducer(myprod,id,resource.type);
         if (r.logged == false){
             Log.info(r.msg);
@@ -292,7 +300,7 @@ implements ProducerOperations {
 
             /* Login */
             String id = cmd.hasOption('i') ? cmd.getOptionValue('i') : "auto-set";
-            p.joinCoordinator(coord,id);
+            if (p.joinCoordinator(coord,id) == false) return;
 
             /* Run server */
             p.thread = new ThreadRun(cm);

@@ -160,21 +160,7 @@ implements ConsumerOperations {
         }
 
         // Get missing resources
-        while (true) {
-            int a = 10;
-
-            String min_res = minRes_helper();
-            
-            for (String prod : view.get(min_res)){
-                Resource req = new Resource();
-                req.type = min_res; 
-                req.amount = a;
-
-                Resource r = getResource_wr(prod,req);
-                if (r.amount == 0 && a > 1) a -= 1;
-                else a += 1;
-            }
-        }
+        crumbeater_strategy(10);
     } 
 
     private void crumbeater_strategy(int crumb) throws GameFinished {

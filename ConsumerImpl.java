@@ -167,22 +167,16 @@ implements ConsumerOperations {
     private void crumbeater_strategy(int crumb) throws GameFinished {
         // Get missing resources
         while (true) {
+            Resource r = randEatMin(crumb);
 
-            String min_res = minRes_helper();
-            // TODO what if not prods in view 
-            for (String prod : view.get(min_res)){
-                Resource req = new Resource();
-                req.type = min_res; 
-                req.amount = crumb;
-
-                Resource r = getResource_wr(prod,req);
-                if (r.amount == 0 && crumb > 1) crumb -= 1;
-                else crumb += 1;
-            }
+            if (r.amount == 0 && crumb > 1) crumb -= 1;
+            else crumb += 1;
         }
     }
 
     private <T> T randFromSet(Set<T> s){
+        if (s.size() == 0) return null;
+
         int nb = (int) Math.random() % s.size();
         int i = 0; 
         for (T e : s){

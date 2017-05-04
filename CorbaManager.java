@@ -38,11 +38,17 @@ public class CorbaManager {
 
 
     public void runORB(){
-        orb.run();
+        try {
+            orb.run();
+        } catch (Exception e){
+        }
     }
 
     public void stop(){
-        orb.shutdown(true);
+        try {
+            orb.shutdown(true);
+        } catch (Exception e){
+        }
     }   
 
     public CorbaManager(String host, String port) throws UserException {

@@ -177,6 +177,24 @@ implements ConsumerOperations {
         }
     } 
 
+    private void crumbeater_strategy(int crumb) throws GameFinished {
+        // Get missing resources
+        while (true) {
+
+            String min_res = minRes_helper();
+            
+            for (String prod : view.get(min_res)){
+                Resource req = new Resource();
+                req.type = min_res; 
+                req.amount = crumb;
+
+                Resource r = getResource_wr(prod,req);
+                if (r.amount == 0 && crumb > 1) crumb -= 1;
+                else crumb += 1;
+            }
+        }
+    }
+
     private String minRes_helper(){
         // Init min to the max value
         Resource min = new Resource();

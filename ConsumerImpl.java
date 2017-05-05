@@ -176,41 +176,39 @@ implements ConsumerOperations {
         }
     }
 
-    private <T> T randFromSet(Set<T> s){
-        if (s.size() == 0) return null;
+    private void absoluteager_strategy() throws GameFinished{
+        for (String p : prods.keySet()) queryResource_wr(p);
+        int need = goal;
+        Resource res;
+        while (true) {
 
-        int nb = (int) Math.floor(Math.random() * (float) s.size());
-        int i = 0; 
-        for (T e : s){
-            if (i == nb) return e;
-            i++;
+            // Eager
+            while (need > goal/10){
+                res = randEatMin(need);
+                if (res.amount > 0) need += need/10;
+                else need -= need/10;
+            }
+            
+            // Try to steal from the opponent
+            String target = randFromSet(cons.keySet());
+            do {
+                Resource req = new Resource();
+                req.type = maxRes_helper();
+                req.amount = need;
+                res = getResource_wr(target,req);
+                if (res.amount > 0) need += need/10;
+            } while (res.amount > 0);
         }
-        return null;
     }
 
-    private Resource randEatMin(int amount) throws GameFinished {
 
-        String min_res = minRes_helper();
-        Set<String> prods_ids = view.get(min_res);
-
-        String target = randFromSet(prods_ids);
-        if (target == null) target = randFromSet(prods.keySet());
-
-        Resource req = new Resource();
-        req.type = min_res; 
-        req.amount = amount;
-
-        return getResource_wr(target,req);
-    }
-
-    
     private void watchfuleye_strategy() throws GameFinished {
         int a = 1;
         while (true) {
             // 1) Observe
             startObservation();
             if (taketurns == false){
-                try{Thread.sleep(500);
+                try{Thread.sleep(200);
                 } catch (Exception e) {}
             } else {
                 keepState();
@@ -243,6 +241,53 @@ implements ConsumerOperations {
         return (float) ripsoff / (float) transactions.size();
     }
 
+    private <T> T randFromSet(Set<T> s){
+        if (s.size() == 0) return null;
+
+        int nb = (int) Math.floor(Math.random() * (float) s.size());
+        int i = 0; 
+        for (T e : s){
+            if (i == nb) return e;
+            i++;
+        }
+        return null;
+    }
+
+    private Resource randEatMin(int amount) throws GameFinished {
+
+        String min_res = minRes_helper();
+        Set<String> prods_ids = view.get(min_res);
+
+        String target = randFromSet(prods_ids);
+        if (target == null) target = randFromSet(prods.keySet());
+
+        Resource req = new Resource();
+        req.type = min_res; 
+        req.amount = amount;
+
+        return getResource_wr(target,req);
+    }
+
+    private Resource randEatMax(int amount) throws GameFinished {
+
+        String max_res = maxRes_helper();
+        int current_amount = resources.get(max_res);
+        
+        // No use to demand more that what we need
+        if (amount > goal - current_amount)
+            amount = goal - current_amount;
+
+        Set<String> prods_ids = view.get(max_res);
+        String target = randFromSet(prods_ids);
+        if (target == null) target = randFromSet(prods.keySet());
+
+        Resource req = new Resource();
+        req.type = max_res; 
+        req.amount = amount;
+
+        return getResource_wr(target,req);
+    }
+
     private String minRes_helper(){
         // Init min to the max value
         Resource min = new Resource();
@@ -258,47 +303,23 @@ implements ConsumerOperations {
         }
         return min.type;
     }
+
+    private String maxRes_helper(){
+        // Init min to the max value
+        Resource max = new Resource();
+        max.type = null;
+        max.amount = -99999;
+       
+        // Search the max resource 
+        for (Map.Entry<String,Integer> e : resources.entrySet()){
+            if (e.getValue() > max.amount){
+                max.type = e.getKey();
+                max.amount = e.getValue();
+            }
+        }
+        return max.type;
+    }
     
-    /* XXX test function */
-    private void teststrategy0() throws GameFinished {
-        while (true) {
-            startObservation();
-            if (taketurns == false){
-                try{Thread.sleep(2000);
-                } catch (Exception e) {}
-            } else {
-                for (int i = 0; i < 3; i++) keepState();
-            }
-            stopObservation();
-            Resource req = new Resource();
-            req.type = "Dinero"; req.amount = 20;
-            Resource r = getResource_wr("Producer-0",req);
-        }
-    } 
-
-
-    /* XXX test function */
-    private void teststrategy1() throws GameFinished {
-        while (true) {
-            for (String id : prods.keySet()){
-                Resource req = new Resource();
-                req.type = "Dinero"; req.amount = 10;
-                Resource r = getResource_wr(id,req);
-//                keepState();
-                try{Thread.sleep(1000);
-                } catch (Exception e) {}
-            }
-/*
-            Resource req = new Resource();
-            req.type = "Dinero"; req.amount = 10;
-            String[] c = new String[cons.size()];
-            cons.keySet().toArray(c);
-*/
-        //    Resource r = getResource_wr(c[0],req);
-        //   logmsg("stolen :"+r.type+" "+r.amount,0);
-            
-        }
-    } 
 
 
     /**
@@ -511,6 +532,7 @@ implements ConsumerOperations {
                         break;
                     case "crumbeater": crumbeater_strategy(1);
                         break;
+                    case "absoluteager" : absoluteager_strategy();
                     default:  
                         Log.warning("Using default strategy");
                         crumbeater_strategy(50);

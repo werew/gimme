@@ -119,11 +119,10 @@ implements ProducerOperations {
         reslock.unlock();
 
         // Did we finish  ?
-        if (max_total <= total_produced) {
+        if (max_total != -1 && max_total <= total_produced) {
             gamefinished.set(true);   // Prevent agent from playing
             coordinator.addTermProd(gameID); // Signal termination
         }
-
 
         turnActionEpilogue();
 
@@ -132,7 +131,7 @@ implements ProducerOperations {
         addTransaction(Common.PRODUCTION,gameID,r);
 
         // If we finished, quit the game loop
-        if (max_total <= total_produced) {
+        if (max_total != -1 && max_total <= total_produced) {
             throw new GameFinished();
         }
     }

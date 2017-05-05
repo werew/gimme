@@ -182,6 +182,13 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private void writeGameModel(){
         try {
             FileWriter f = new FileWriter(path_out);
+            f.write(goal+"\n");
+            for (String c : consumers.keySet()) f.write(c+" ");
+            f.write("\n");
+            for (String p : producers.keySet()) f.write(p+" ");
+            f.write("\n");
+            for (String r : resources.keySet()) f.write(r+" ");
+            f.write("\n");
             for (Transaction t : transactions){
                 f.write(t.type+" "+t.to+" "+t.from+" "+
                         t.content.type+" "+t.content.amount+"\n"

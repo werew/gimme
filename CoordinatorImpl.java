@@ -183,7 +183,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         try {
             FileWriter f = new FileWriter(path_out);
             for (Transaction t : transactions){
-                f.write(t.timestamp+" "+t.type+" "+t.to+" "+t.from+" "+
+                f.write(t.type+" "+t.to+" "+t.from+" "+
                         t.content.type+" "+t.content.amount+"\n"
                        );
             }

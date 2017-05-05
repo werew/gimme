@@ -81,6 +81,7 @@ implements ConsumerOperations {
         if (gi.taketurns == true){
             if (this.taketurns == false) setTurnGame();
 	    } else if (this.human == true) {
+            Log.error("Not a turn-based game (remove -h)");
             return false;
         }
 

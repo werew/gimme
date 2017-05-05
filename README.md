@@ -31,7 +31,7 @@ TODO
 - Store transactions (DONE)
 - Get resources list from coordinator (DONE)
 - Add System.exit
-- Better error messages
+- Better error messages (DONE)
 - Add tests
 - Talk about producer's capacity
 

@@ -46,7 +46,7 @@ public class CorbaManager {
 
     public void stop(){
         try {
-            orb.shutdown(true);
+        //    orb.shutdown(true);
         } catch (Exception e){
         }
     }   

@@ -1,14 +1,14 @@
-case $1 in
-1)
-tnameserv -ORBInitialPort 8921 
-;;
-2)
-java CoordinatorImpl localhost 8921
-;;
-3)
-java ConsumerImpl localhost 8921
-;;
-4)
-java ProducerImpl localhost 8921 Dinero
-;;
+#!/bin/sh
+
+HOST=localhost
+PORT=8921
+CHOICE=$1
+shift
+
+set -x
+case $CHOICE in
+    1) tnameserv -ORBInitialPort $PORT  ;;
+    2) java CoordinatorImpl $HOST $PORT $@ ;;  
+    3) java ConsumerImpl $HOST $PORT $@ ;;
+    4) java ProducerImpl $HOST $PORT $@ ;;
 esac

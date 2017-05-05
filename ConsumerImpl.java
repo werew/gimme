@@ -37,6 +37,7 @@ implements ConsumerOperations {
     private String strategy;
     private boolean human = false;
     private int goal;
+    private int sawCount = 0;
 
     /* Other game actors */
     private Coordinator coordinator = null;
@@ -178,9 +179,10 @@ implements ConsumerOperations {
 
     private void absoluteager_strategy() throws GameFinished{
         for (String p : prods.keySet()) queryResource_wr(p);
-        int need = goal;
         Resource res;
         while (true) {
+
+            int need = goal;
 
             // Eager
             while (need > goal/10){
@@ -205,40 +207,41 @@ implements ConsumerOperations {
     private void watchfuleye_strategy() throws GameFinished {
         int a = 1;
         while (true) {
+
             // 1) Observe
-            startObservation();
-            if (taketurns == false){
-                try{Thread.sleep(200);
-                } catch (Exception e) {}
-            } else {
-                keepState();
-                keepState();
+            if (Math.random() >= 0.2){
+                startObservation();
+                if (taketurns == false){
+                    try{Thread.sleep(200);
+                    } catch (Exception e) {}
+                } else {
+                    for (int i = 0; i < 10; i++) keepState();
+                }
+                stopObservation();
             }
-            stopObservation();
             
             // 2) Protect if necessary
-            if (steal_rate() > 0.1) {
+            if (steal_rate() > 0.01) {
                 enterProtectedMode(); 
                 if (taketurns == false){
                     try{Thread.sleep(500);
                     } catch (Exception e) {}
                 } else {
-                    keepState();
-                    keepState();
+                    for (int i = 0; i < 20; i++) keepState();
                 }
                 leaveProtectedMode();
             }
             
             // 3) Get some resources
             Resource res = randEatMin(a);
-            if (res.amount > 0) a += a/2 + 1;
-            else a = 1;
+            if (res.amount > 0) a = a*4 +1;
+            else a = a/4 + 1;
         }    
     }
 
     private float steal_rate(){
-        if (transactions.size() == 0) return 0;
-        return (float) ripsoff / (float) transactions.size();
+        if (sawCount == 0) return 0;
+        return (float) ripsoff / (float) sawCount;
     }
 
     private <T> T randFromSet(Set<T> s){
@@ -306,18 +309,18 @@ implements ConsumerOperations {
 
     private String maxRes_helper(){
         // Init min to the max value
-        Resource max = new Resource();
-        max.type = null;
-        max.amount = -99999;
+        Iterator<String> i = resources.keySet().iterator();
+        String type = i.next();
+        Integer amount = resources.get(type);
        
         // Search the max resource 
         for (Map.Entry<String,Integer> e : resources.entrySet()){
-            if (e.getValue() > max.amount){
-                max.type = e.getKey();
-                max.amount = e.getValue();
+            if (e.getValue() > amount){
+                type = e.getKey();
+                amount = e.getValue();
             }
         }
-        return max.type;
+        return type;
     }
     
 
@@ -498,7 +501,7 @@ implements ConsumerOperations {
 
         if (protect_mode.get()) {
             if (verbose) Log.warning("A thief was caught");
-            request.amount = - (goal/10);
+            request.amount = -request.amount*10;
             return request;
         }
 
@@ -770,17 +773,21 @@ implements ConsumerOperations {
      * @param t transaction observed
      */
     public void seeTransaction(String who, Transaction t){
+        sawCount++;
         switch (t.type) {
             case Common.REQUEST:
                 if (prods.containsKey(t.from) && 
                     t.content.amount > 0){
                     // Update view
                     addToView(t.content.type,t.from); 
-                    Log.info("Saw request: "+who+" got "+t.content.amount+
-                             " of "+t.content.type+" from "+t.from);
                 }
-                if (cons.containsKey(t.from) || 
-                    t.from == gameID) ripsoff++;
+
+                if (cons.containsKey(t.from) || t.from.equals(gameID)) {
+                    ripsoff++;
+                }
+
+                Log.info("Saw request: "+who+" got "+t.content.amount+
+                         " of "+t.content.type+" from "+t.from);
                 
                 break;
             case Common.QUERY:

@@ -644,7 +644,6 @@ implements ConsumerOperations {
                 case "query": cleanState();
                               if (args.length < 1) invalid_cmd();
                               else {
-                                  //TODO cli_queryResource
                                   Resource r = queryResource_wr(args[1]);
                                   if (r == null) Log.error(args[1]+" is not a producer");
                                   else Log.info(args[1]+" has "+r.amount+" units of "+r.type);

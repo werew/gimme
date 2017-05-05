@@ -116,7 +116,6 @@ public abstract class AgentImpl extends AgentPOA {
      * 
      * This method is called by the Coordinator to let
      * an Agent play his turn
-     * TODO return ??
      */
     public boolean playTurn(){
         // Return immediatly if agent has finished the game
@@ -151,11 +150,13 @@ public abstract class AgentImpl extends AgentPOA {
         } 
     }
 
+
     public Transaction[] getHistory(){
         Transaction[] hst = new Transaction[transactions.size()];
         transactions.toArray(hst);
         return hst;
     }
+
 
     public void syncEnd(){
         // Stop current agent from playing

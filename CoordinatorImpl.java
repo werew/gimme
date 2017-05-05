@@ -209,11 +209,9 @@ public class CoordinatorImpl extends CoordinatorPOA {
         if (taketurns == false){
             for (Agent a : consumers.values()) {
                 a.syncEnd();
-                System.out.println("Synced ");
             }
             for (Agent a : producers.values()) {
                 a.syncEnd();
-                System.out.println("Synced ");
             }
         }
 

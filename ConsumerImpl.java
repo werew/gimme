@@ -143,8 +143,9 @@ implements ConsumerOperations {
             ripoff.amount = goal/3;
 
             for (Iterator<String> i = targets.iterator(); i.hasNext();) {
+                String t = i.next();
                 while (true) {
-                    Resource loot = getResource_wr(i.next(),ripoff);
+                    Resource loot = getResource_wr(t,ripoff);
                     
                     // Success, go to next target
                     if (loot.amount > 0) break;
@@ -178,7 +179,7 @@ implements ConsumerOperations {
     private <T> T randFromSet(Set<T> s){
         if (s.size() == 0) return null;
 
-        int nb = (int) Math.random() % s.size();
+        int nb = (int) Math.floor(Math.random() * (float) s.size());
         int i = 0; 
         for (T e : s){
             if (i == nb) return e;

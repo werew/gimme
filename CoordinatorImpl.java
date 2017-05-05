@@ -38,6 +38,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private boolean running = false;
     private AtomicBoolean gamefinished;
     private ArrayList<Transaction> transactions;
+    public int end = -1;
 
     /* End game infos */
     private ArrayList<String> winners;
@@ -230,9 +231,24 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 if (r.amount >= goal) points++;
             l.add(new AbstractMap.SimpleEntry(c.getKey(), new Integer(points)));
         }
+/*
         Collections.sort(l, new Comparator<Map.Entry<String,Integer>>() {
             public int compare(Map.Entry<String,Integer> e1, Map.Entry<String,Integer> e2){
                 return Integer.compare(e1.getValue(),e2.getValue());
+            }
+        });
+*/
+        Collections.sort(l, new Comparator<Map.Entry<String,Integer>>() {
+            public int compare(Map.Entry<String,Integer> e1, Map.Entry<String,Integer> e2){
+                int res_cmp = Integer.compare(e1.getValue(),e2.getValue());
+                if (res_cmp != 0) return res_cmp;
+
+                int i1 = winners.indexOf(e1.getKey());
+                int i2 = winners.indexOf(e2.getKey());
+                if (i1 == -1) return -1;
+                else if (i2 == -1) return 1;
+                else if (i1 > i2) return 1;
+                else return -1;
             }
         });
 
@@ -292,15 +308,33 @@ public class CoordinatorImpl extends CoordinatorPOA {
     private void gameLoop(){
         for (Consumer c : consumers.values()) c.start();
         for (Producer p : producers.values()) p.start();
-
+        
         if (taketurns == true) {
             List<Consumer> cons = new ArrayList(consumers.values());
             while (gamefinished.get() == false) {
                 for (Consumer c : cons) c.playTurn();
                 for (Producer p : producers.values()) p.playTurn();
                 Collections.shuffle(cons);
+
+                if (end == 0) gamefinished.set(true);
+                else if (end > 0) end--;
             }
         } else {
+            if (end > 0){
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    public void run() {
+                        synchronized (gamefinished){
+                            gamefinished.set(true);
+                                try { gamefinished.notify();
+                                } catch (Exception e) {
+                                   e.printStackTrace();
+                                }
+                        }
+                    }
+                }, end * 1000);
+            }
+
             synchronized (gamefinished){
                 while (gamefinished.get() == false) {
                     try { gamefinished.wait();
@@ -353,11 +387,15 @@ public class CoordinatorImpl extends CoordinatorPOA {
         Option file = new Option("f","file",true, 
             "write game model to file");
         file.setArgName("output game model");
+        Option end = new Option("e","end",true, 
+            "plan the end of game after n seconds/turns");
+        end.setArgName("n");
 
         options.addOption(taketurns); 
         options.addOption(consumers); 
         options.addOption(producers); 
         options.addOption(file); 
+        options.addOption(end); 
 
         return options;
     }
@@ -393,6 +431,8 @@ public class CoordinatorImpl extends CoordinatorPOA {
                 coord.path_out = cmd.getOptionValue('f');
             if (cmd.hasOption('p'))
                 coord.nprod = Integer.parseInt(cmd.getOptionValue('p'));
+            if (cmd.hasOption('e'))
+                coord.end = Integer.parseInt(cmd.getOptionValue('e'));
             coord.goal = Integer.parseInt(argz[2]);
 
             /* Init corba service */

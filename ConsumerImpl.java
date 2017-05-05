@@ -141,10 +141,9 @@ implements ConsumerOperations {
             Resource ripoff = new Resource();
             ripoff.type = restype;
             ripoff.amount = goal/3;
-
             for (Iterator<String> i = targets.iterator(); i.hasNext();) {
                 String t = i.next();
-                while (true) {
+                for (int max_try = 10; max_try > 0; max_try--) {
                     Resource loot = getResource_wr(t,ripoff);
                     
                     // Success, go to next target

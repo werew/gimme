@@ -16,14 +16,12 @@ TURNS=false
 # Thos are the default values
 HOST=localhost
 PORT=8912
+PID=$$
 
-#TODO
-pkill -u coniglio tnameserv
-pkill -u coniglio java
 
 main ()
 {
-    ARGS=$(getopt -u -n $0 -o f:t -l help -- "$@")
+    ARGS=$(getopt -u -n $0 -o hf:t -l help -- "$@")
 
     if [ $? -ne 0 ]
     then
@@ -39,7 +37,8 @@ main ()
                 ;;
             -t) TURNS=true; shift
                 ;;
-            --help) print_help
+            
+            -h | --help) print_help
                 ;;
             --) shift; break
                 ;;
@@ -84,13 +83,16 @@ main ()
     # Launch coordinator
     echo java CoordinatorImpl $COORD_OPTS "$HOST" "$PORT" "$GOAL" &
     java CoordinatorImpl $COORD_OPTS "$HOST" "$PORT" "$GOAL" &
+    PID_COORD=$!
     sleep 1
 
     # Launch players
     launch "java ConsumerImpl  ${HOST} ${PORT}" "$FILE_OPTC"
     launch "java ProducerImpl  ${HOST} ${PORT}" "$FILE_OPTP"
-    
+
+    wait $PID_COORD
 }
+
     
 
 launch (){
@@ -99,10 +101,32 @@ launch (){
         $1 $line &
     done < "$2"
 }
-    
+   
+quit (){
+    kill -- -$(ps -o pgid=$PID | grep -o '[0-9]*')
+    echo hhhhhhhhhhhhhhh
+    exit 0
+} 
+trap quit 2
+trap quit EXIT
+
 
 print_help (){
     cat << END_HELP
+'$0' can be used to execute multiple instances of ConsumerImpl
+and ProducerImpl at the same time. As the configuration of
+these programs is quite rich, this script takes directly as 
+parameter two files containing (at each line) the command line 
+options of the consumers and the producers you want to launch.
+The number of consumers and producers depends on the number
+of lines in the option files.
+
+usage: $0 [options] <file optconsumers> <file optproducers> <goal>
+
+-f <file>                 save game transactions into a file
+-t                        set the game style to turn-based 
+-h --help                 show this help
+                                                               
 END_HELP
     exit 0
 }

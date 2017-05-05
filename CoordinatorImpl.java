@@ -241,7 +241,7 @@ public class CoordinatorImpl extends CoordinatorPOA {
         Collections.sort(l, new Comparator<Map.Entry<String,Integer>>() {
             public int compare(Map.Entry<String,Integer> e1, Map.Entry<String,Integer> e2){
                 int res_cmp = Integer.compare(e1.getValue(),e2.getValue());
-                if (res_cmp != 0) return res_cmp;
+                if (res_cmp != 0) return -res_cmp;
 
                 int i1 = winners.indexOf(e1.getKey());
                 int i2 = winners.indexOf(e2.getKey());

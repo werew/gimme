@@ -30,6 +30,10 @@ TODO
 - Production of resources (DONE)
 - Store transactions (DONE)
 - Get resources list from coordinator (DONE)
+- Add System.exit
+- Better error messages
+- Add tests
+- Talk about producer's capacity
 
 NOTES
 - Explaining choice to use tie model to be able to use inheritance

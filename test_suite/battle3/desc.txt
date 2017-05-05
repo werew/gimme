@@ -1,0 +1,8 @@
+# Description:
+The ultimate turn-based meal... but chocolate is not much. 
+Slow incremental eating vs fast crazy eating
+
+run with:
+./test.sh -t -f out test_suite/battle3/cons.opt        \
+                 test_suite/battle3/prods.opt 300
+

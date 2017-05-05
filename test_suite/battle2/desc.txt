@@ -1,0 +1,9 @@
+# Description:
+Potentially infinite game: a thief and a police man
+they are going do block each other for sure. Better
+put a time limit.
+
+run with:
+./test.sh -f out -e 20 test_suite/battle2/cons.opt        \
+                       test_suite/battle2/prods.opt 10000
+

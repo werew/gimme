@@ -186,9 +186,9 @@ implements ConsumerOperations {
 
             // Eager
             while (need > goal/10){
-                res = randEatMin(need);
+                res = randEatMax(need);
                 if (res.amount > 0) need += need/10;
-                else need -= need/10;
+                else need = need/2 + 1;
             }
             
             // Try to steal from the opponent
@@ -309,12 +309,20 @@ implements ConsumerOperations {
 
     private String maxRes_helper(){
         // Init min to the max value
-        Iterator<String> i = resources.keySet().iterator();
-        String type = i.next();
-        Integer amount = resources.get(type);
+        String type = "";
+        Integer amount = 0;
        
+        // Search the first not completed
+        for (Map.Entry<String,Integer> e : resources.entrySet()){
+            if (e.getValue() < goal){
+                type = e.getKey();
+                amount = e.getValue();
+            }
+        }
+
         // Search the max resource 
         for (Map.Entry<String,Integer> e : resources.entrySet()){
+            if (e.getValue() >= goal) continue;
             if (e.getValue() > amount){
                 type = e.getKey();
                 amount = e.getValue();

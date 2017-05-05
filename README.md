@@ -13,10 +13,10 @@ TODO
                           (DONE: exit coordinator)
                           (TODO: finish cond based on resource availability)
 
-- Strategies 
-- Test strategies
+- Strategies (DONE)
+- Test strategies (DONE)
 - Clean imports
-- Report
+- Report (DONE)
 
 - Verbose mode (DONE)
 - Shuffled consumers at each turn (DONE)
@@ -30,10 +30,9 @@ TODO
 - Production of resources (DONE)
 - Store transactions (DONE)
 - Get resources list from coordinator (DONE)
-- Add System.exit
 - Better error messages (DONE)
-- Add tests
-- Talk about producer's capacity
+- Add tests (DONE)
+- Talk about producer's capacity (DONE)
 
 NOTES
 - Explaining choice to use tie model to be able to use inheritance

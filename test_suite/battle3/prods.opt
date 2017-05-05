@@ -1,0 +1,3 @@
+-g 100 -r 5 -i PizzaMan -t -f 1 Pizza
+-g 10  -r 2 -i Chocolatier -t -f 1 Chocolate
+-g 500 -r 0.1 -i Tree -t -f 1 Fruit

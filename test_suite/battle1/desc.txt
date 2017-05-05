@@ -1,0 +1,7 @@
+# Description:
+Simple game between 3 peers using the same basic strategy.
+
+run with:
+./test.sh -f out test_suite/battle1/cons.opt        \
+                 test_suite/battle1/prods.opt 300
+

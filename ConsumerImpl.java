@@ -612,7 +612,7 @@ implements ConsumerOperations {
                 else if (res.amount  == 0)
                     out.println("No luck...");
                 else
-                    Log.success("Got "+res.amount+" of "+res.type);
+                    Log.success("Well done!");
             }
          } catch (NumberFormatException e) { 
             invalid_cmd();
@@ -649,21 +649,17 @@ implements ConsumerOperations {
                                   else Log.info(args[1]+" has "+r.amount+" units of "+r.type);
                               }
                     break;
-                case "protect": if (protect_mode.get()) {
-                                    Log.info("Protected mode is active");
-                                    break;
+                case "protect": if (protect_mode.get() == false) {
+                                    cleanState(); 
+                                    enterProtectedMode();
                                 }
-                                cleanState(); 
-                                enterProtectedMode();
                                 if (args.length > 1) doNothing(args[1]);
                                 else doNothing(1);
                     break;
-                case "observe": if (observation_mode.get()){
-                                    Log.info("Already observing");
-                                    break;
+                case "observe": if (observation_mode.get() == false){
+                                    cleanState();
+                                    startObservation();
                                 }
-                                cleanState();
-                                startObservation();
                                 if (args.length > 1) doNothing(args[1]);
                                 else doNothing(1);
                     break;
@@ -758,6 +754,8 @@ implements ConsumerOperations {
                     t.content.amount > 0){
                     // Update view
                     addToView(t.content.type,t.from); 
+                    Log.info("Saw request: "+who+" got "+t.content.amount+
+                             " of "+t.content.type+" from "+t.from);
                 }
                 if (cons.containsKey(t.from) || 
                     t.from == gameID) ripsoff++;
